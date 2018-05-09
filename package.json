@@ -1,0 +1,26 @@
+{
+  "name": "node-neural-tetris",
+  "version": "0.0.0",
+  "description": "Node neural network training for tetris game.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "lint": "standard ."
+  },
+  "keywords": [
+    "neural network",
+    "tetris"
+  ],
+  "author": "Petar Ivančević",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "brain.js": "^1.2.1",
+    "dotenv-safe": "^5.0.1",
+    "minimist": "^1.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.4",
+    "standard": "^11.0.1"
+  }
+}
