@@ -112,4 +112,4 @@ if (!validateParams()) {
 }
 
 const neuralNetwork = ai.create(config)
-trainNetwork(params.name, params.count)
+trainNetwork(params.v.name, params.v.count)
