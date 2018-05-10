@@ -6,6 +6,8 @@ const minimist = require('minimist')
 const ai = require('./ai')
 const config = require('./config')
 
+const trainingDataFolder = 'training-data'
+
 const params = minimist(process.argv.slice(2), {
   stopEarly: true
 })
@@ -21,41 +23,47 @@ function logAndDie (err) {
 
 function validateParams () {
   const paramCount = _(params).keys().size()
-  const hasProperParams = !!_(params).keys().difference(['_', 'count', 'name', 'c', 'n']).size()
+  const hasProperParams = !!_(params).keys().difference(['_', 'games', 'name', 'g', 'n', 'c', 'continue']).size()
 
   if (paramCount < 3 || hasProperParams) {
     console.error(`
-      The only valid params are "count" and "name"
-      - count => number of episodes to play
-      - name  => name of the training data folder
+      The only valid params are "continue", "games" and "name"
+      - continue  => continue training the network
+      - games     => number of episodes to play
+      - name      => name of the training data folder
       Example:
-      node index.js --count 1000 --name first-training
+      node index.js --games 1000 --name first-training
 
       OR
 
-      node index.js -c 1000 -n first-training
+      node index.js -g 1000 -n continue-training -c
     `)
     die()
   }
 
-  const trainingCount = _.get(params, 'c') || _.get(params, 'count')
+  const trainingCount = _.get(params, 'g') || _.get(params, 'games')
   const trainingFolderName = _.trim(_.get(params, 'n') || _.get(params, 'name'))
+  const continueTraining = _.get(params, 'c') || _.get(params, 'continue')
 
   if (!_.isNumber(trainingCount)) {
-    console.error('Count must be a number!')
-    die()
+    logAndDie('Count must be a number!')
+  }
+
+  if (!trainingFolderName) {
+    logAndDie('Training folder name is required!')
   }
 
   params.v = {
     count: trainingCount,
-    name: trainingFolderName
+    name: trainingFolderName,
+    continueTraining
   }
 
   return true
 }
 
 async function createNewFolder (folderName) {
-  return fsPromise.mkdirAsync(`training-data/${folderName}`).catch(logAndDie)
+  return fsPromise.mkdirAsync(`${trainingDataFolder}/${folderName}`).catch(logAndDie)
 }
 
 /*
@@ -73,7 +81,7 @@ async function createNewFolder (folderName) {
 */
 
 async function writeTrainingDataToFiles (folderName, trainingData) {
-  const folderPath = `training-data/${folderName}`
+  const folderPath = `${trainingDataFolder}/${folderName}`
 
   await fsPromise.appendFileAsync(`${folderPath}/points.txt`, `${trainingData.totalPoints}\n`)
 
@@ -87,7 +95,7 @@ async function writeTrainingDataToFiles (folderName, trainingData) {
 }
 
 async function writeNetworkToFile (folderName, trainedNetwork) {
-  const networkFileName = `training-data/${folderName}/network.json`
+  const networkFileName = `${trainingDataFolder}/${folderName}/network.json`
 
   return fsPromise.writeFileAsync(
     networkFileName,
@@ -95,16 +103,36 @@ async function writeNetworkToFile (folderName, trainedNetwork) {
   ).catch(logAndDie)
 }
 
-async function trainNetwork (folderName, numGames) {
-  await createNewFolder(folderName)
+async function readNetworkFromFile (folderName) {
+  const networkJSON = await fsPromise.readFileAsync(`${trainingDataFolder}/${folderName}/network.json`, 'utf8')
+  neuralNetwork.net = neuralNetwork.net.fromJSON(JSON.parse(networkJSON))
+}
 
+async function setup (continueTraining, folderName) {
+  if (!continueTraining) {
+    await createNewFolder(folderName)
+  } else {
+    await readNetworkFromFile(folderName)
+  }
+}
+
+async function trainNetwork (folderName, numGames) {
   for (let gameNum = 0; gameNum < numGames; gameNum++) {
     let trainingData = _.first(await ai.train(neuralNetwork, gameNum + 1, numGames))
     await writeTrainingDataToFiles(folderName, trainingData)
+
+    if (gameNum % 1000 === 0) {
+      await writeNetworkToFile(folderName, neuralNetwork.net)
+    }
   }
   await writeNetworkToFile(folderName, neuralNetwork.net)
 
   process.exit(0)
+}
+
+async function init ({continueTraining, name, count}) {
+  await setup(continueTraining, name)
+  await trainNetwork(name, count)
 }
 
 if (!validateParams()) {
@@ -112,4 +140,4 @@ if (!validateParams()) {
 }
 
 const neuralNetwork = ai.create(config)
-trainNetwork(params.v.name, params.v.count)
+init(params.v)

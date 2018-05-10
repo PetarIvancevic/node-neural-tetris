@@ -34,6 +34,19 @@ const aiTrackers = {
 //   return reward ? reward / 100 : 0
 // }
 
+function printBoardVector (boardVector) {
+  // console.log(JSON.stringify(boardVector))
+  let row = []
+
+  for (let i = 0; i < constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT; i++) {
+    row.push(boardVector[i])
+    if ((i + 1) % 10 === 0) {
+      console.log(i, JSON.stringify(row))
+      row = []
+    }
+  }
+}
+
 function getVectorWithValues (fillVal = 0) {
   let arr = []
 
@@ -61,7 +74,7 @@ function updateNetwork (gameAllMoves, netConfig) {
       finalReward += moves[i].reward
     }
 
-    // console.log(moves[i])
+    // printBoardVector(moves[i].boardVector)
 
     trainingSets.push({
       boardVector: moves[i].boardVector,
