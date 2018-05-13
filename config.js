@@ -4,7 +4,7 @@ const constants = require('./constants')
 const activationFn = 'leaky-relu'
 
 // neural network hidden layers
-const hiddenLayers = [400]
+const hiddenLayers = [777]
 
 // neural network learning rate
 const learningRate = 0.03

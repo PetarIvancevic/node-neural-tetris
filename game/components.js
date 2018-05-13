@@ -1,18 +1,19 @@
 const _ = require('lodash')
 
-const {tetris} = require('../constants')
+const constants = require('../constants')
+const {tetris} = constants
 
 const baseBlock = function (isRotationPossibleFn, blockType) {
   this.isMovable = true
   this.type = tetris.blockTypes[blockType]
 
-  this.advance = function (checkCollision, boardHeight = 20) {
+  this.advance = function (checkCollision, boardHeight = constants.ai.ROW_COUNT) {
     let occupiedPositionsSize = _.size(this.occupiedPositions)
 
     for (let i = 0; i < occupiedPositionsSize; i++) {
       let newYPosition = this.occupiedPositions[i].y + 1
 
-      if (newYPosition === 20 || checkCollision(this.occupiedPositions[i].x, newYPosition)) {
+      if (newYPosition === constants.ai.ROW_COUNT || checkCollision(this.occupiedPositions[i].x, newYPosition)) {
         this.isMovable = false
         break
       }

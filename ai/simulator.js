@@ -23,10 +23,13 @@ function generateMoves (currentBlock, checkCollisionFn) {
   if (!currentBlock.isMovable) {
     return []
   }
+  const possibleMoves = []
+  const possibleMovements = ['left', 'right', 'rotate']
+  const possibleMovementsSize = _.size(possibleMovements)
 
-  const possibleMoves = _.map(['left', 'right', 'rotate'], function (move) {
-    return makeMove(_.cloneDeep(currentBlock), move)
-  })
+  for (let i = 0; i < possibleMovementsSize; i++) {
+    possibleMoves.push(makeMove(_.cloneDeep(currentBlock), possibleMovements[i]))
+  }
   possibleMoves.push(makeMove(_.cloneDeep(currentBlock), 'down', checkCollisionFn))
 
   return possibleMoves
@@ -35,7 +38,9 @@ function generateMoves (currentBlock, checkCollisionFn) {
 function stripDuplicateMoves (newBlockMoves, allBlockMoveNodes) {
   let uniqueBlockMoves = []
 
-  _.each(newBlockMoves, function (newBlockMove) {
+  for (let moveIndex = 0; moveIndex < _.size(newBlockMoves); moveIndex++) {
+    let newBlockMove = newBlockMoves[moveIndex]
+
     let duplicateBlock = _.find(allBlockMoveNodes, function (blockMoveNode) {
       return _.isEqual(blockMoveNode.block.occupiedPositions, newBlockMove.occupiedPositions)
     })
@@ -43,7 +48,7 @@ function stripDuplicateMoves (newBlockMoves, allBlockMoveNodes) {
     if (!duplicateBlock) {
       uniqueBlockMoves.push(newBlockMove)
     }
-  })
+  }
 
   return uniqueBlockMoves
 }
@@ -69,10 +74,11 @@ function generateAllMoveNodes (tetrisGame) {
     let newMoves = generateMoves(parentMove, tetrisGame.getCheckCollisionFn())
     let newUniqueMoves = stripDuplicateMoves(newMoves, allMoveNodes)
 
-    let uniqueMoveNodes = _.map(newUniqueMoves, function (uniqueMove) {
-      let newChild = new TreeNode(null, uniqueMove)
-      return newChild
-    })
+    let uniqueMoveNodes = []
+    for (let uniqueMoveIndex = 0; uniqueMoveIndex < _.size(newUniqueMoves); uniqueMoveIndex++) {
+      let uniqueMove = newUniqueMoves[uniqueMoveIndex]
+      uniqueMoveNodes.push(new TreeNode(null, uniqueMove))
+    }
 
     allMoveNodes = _.concat(uniqueMoveNodes, allMoveNodes)
     blockPositions = _.concat(newUniqueMoves, blockPositions)
@@ -82,22 +88,29 @@ function generateAllMoveNodes (tetrisGame) {
 }
 
 function getFinalMoves (moveNodes) {
-  return _(moveNodes).map(function (moveNode) {
+  const finalMoveNodes = []
+
+  for (let index = 0; index < _.size(moveNodes); index++) {
+    let moveNode = moveNodes[index]
+
     if (!moveNode.block.isMovable) {
-      return moveNode
+      finalMoveNodes.push(moveNode)
     }
-  })
-  .compact()
-  .value()
+  }
+
+  return finalMoveNodes
 }
 
 function getBestMoveNode (tetrisGame, netConfig, useRandom) {
   const finalMoves = getFinalMoves(generateAllMoveNodes(tetrisGame))
-  let bestMoves = {moveValue: -100000, sameValueMoveIndexes: []}
+  const numFinalMoves = _.size(finalMoves)
+  let bestMoveIndex = 0
+  let bestMoveValue = 0
   // add random function
   // WATCH OUT FOR BOARD VECTOR GENERATION!
 
-  _.each(finalMoves, function (moveNode, index) {
+  for (let index = 0; index < numFinalMoves; index++) {
+    let moveNode = finalMoves[index]
     let board = tetrisGame.getBoard()
 
     let occupiedRows = gameLogic.populateLowestFourYCoordsFromOccupiedPositions(board)
@@ -117,21 +130,14 @@ function getBestMoveNode (tetrisGame, netConfig, useRandom) {
     let moveValue = reward + netConfig.net.run(moveNode.boardVector)[0]
     // let moveValue = netConfig.net.run(moveNode.boardVector)[0]
 
-    if (moveValue === bestMoves.moveValue) {
-      bestMoves.sameValueMoveIndexes.push(index)
+    if (moveValue > bestMoveValue) {
+      bestMoveIndex = index
+      bestMoveValue = moveValue
     }
-
-    if (moveValue > bestMoves.moveValue) {
-      bestMoves = {
-        moveValue,
-        sameValueMoveIndexes: [index]
-      }
-    }
-  })
-  const bestMoveIndex = bestMoves.sameValueMoveIndexes[_.random(_.size(bestMoves.sameValueMoveIndexes) - 1)]
+  }
 
   if (useRandom && isFivePercentChance()) {
-    const randomIndex = _.random(_.size(finalMoves) - 1)
+    let randomIndex = _.random(_.size(finalMoves) - 1)
     return finalMoves[randomIndex]
   }
 
