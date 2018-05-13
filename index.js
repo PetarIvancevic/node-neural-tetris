@@ -103,6 +103,17 @@ async function writeNetworkToFile (folderName, trainedNetwork) {
   ).catch(logAndDie)
 }
 
+async function writeSimulatedGameMovesToFile (folderName, moves) {
+  const networkFileName = `${trainingDataFolder}/${folderName}/game-moves.txt`
+
+  for (let i = 0; i < _.size(moves); i++) {
+    await fsPromise.appendFileAsync(
+      networkFileName,
+      `${JSON.stringify(moves[i])}\n`
+    ).catch(logAndDie)
+  }
+}
+
 async function readNetworkFromFile (folderName) {
   const networkJSON = await fsPromise.readFileAsync(`${trainingDataFolder}/${folderName}/network.json`, 'utf8')
   neuralNetwork.net = neuralNetwork.net.fromJSON(JSON.parse(networkJSON))
@@ -123,9 +134,12 @@ async function trainNetwork (folderName, numGames) {
 
     if (gameNum % 1000 === 0) {
       await writeNetworkToFile(folderName, neuralNetwork.net)
+      let simulatedGameMoves = await ai.simulateTrainingGame(neuralNetwork)
+      await writeSimulatedGameMovesToFile(folderName, simulatedGameMoves)
     }
   }
   await writeNetworkToFile(folderName, neuralNetwork.net)
+  await writeSimulatedGameMovesToFile(folderName, await ai.simulateTrainingGame(neuralNetwork))
 
   process.exit(0)
 }
