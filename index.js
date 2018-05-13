@@ -104,6 +104,7 @@ async function writeNetworkToFile (folderName, trainedNetwork) {
 }
 
 async function writeSimulatedGameMovesToFile (folderName, moves) {
+  console.log('Writing moves to file...')
   const networkFileName = `${trainingDataFolder}/${folderName}/game-moves.txt`
 
   for (let i = 0; i < _.size(moves); i++) {

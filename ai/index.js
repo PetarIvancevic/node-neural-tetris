@@ -119,7 +119,7 @@ function create ({learningRate, hiddenLayers, activationFn, initialTrainingData,
     netNormalizedOutput: function (input) {
       // return this.net.run(input)
       const netResult = this.net.run(input)
-      return netResult[0] > 10 ? [10] : netResult
+      return netResult[0] > 10 ? [10] : netResult < 0 ? 0 : netResult
     }
   }
 
@@ -147,32 +147,26 @@ async function train (netConfig, currentGame, totalGames) {
     process.exit(1)
   }
 
-  const NUM_GAMES_TO_PLAY = 1 // numGames || aiTrackers.NUM_GAMES_TO_PLAY
+  console.log('called traing')
   const chartData = []
 
-  aiTrackers.TOTAL_SET_NUM_GAMES = NUM_GAMES_TO_PLAY
-  aiTrackers.CURRENT_GAME = 0
+  console.log(`Playing... GAME: ${currentGame} / ${totalGames}`)
+  let tetrisGame = new TetrisGame(3, true)
+  let gameMoveNodes = simulator.playOneEpisode(tetrisGame, netConfig)
 
-  for (let i = 0; i < NUM_GAMES_TO_PLAY; i++) {
-    console.log(`Playing... GAME: ${currentGame} / ${totalGames}`)
-    aiTrackers.CURRENT_GAME++
-    let tetrisGame = new TetrisGame(3, true)
-    let gameMoveNodes = simulator.playOneEpisode(tetrisGame, netConfig)
-
-    chartData.push({
-      totalPoints: tetrisGame.getScore(),
-      netValuesBefore: {
-        empty: netConfig.net.run(getVectorWithValues())[0],
-        full: netConfig.net.run(getVectorWithValues(1))[0]
-      },
-      numMoves: _.size(gameMoveNodes)
-    })
-    updateNetwork(gameMoveNodes, netConfig)
-
-    chartData[i].netValueAfter = {
+  chartData.push({
+    totalPoints: tetrisGame.getScore(),
+    netValuesBefore: {
       empty: netConfig.net.run(getVectorWithValues())[0],
       full: netConfig.net.run(getVectorWithValues(1))[0]
-    }
+    },
+    numMoves: _.size(gameMoveNodes)
+  })
+  updateNetwork(gameMoveNodes, netConfig)
+
+  chartData[0].netValueAfter = {
+    empty: netConfig.net.run(getVectorWithValues())[0],
+    full: netConfig.net.run(getVectorWithValues(1))[0]
   }
 
   return chartData
