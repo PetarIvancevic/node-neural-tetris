@@ -144,7 +144,6 @@ function create ({learningRate, hiddenLayers, activationFn, initialTrainingData,
 
 async function train (netConfig, currentGame, totalGames) {
   if (!netConfig.net) {
-    console.error('The network is not created! You probably forgot to call create!')
     process.exit(1)
   }
 
@@ -179,7 +178,18 @@ async function train (netConfig, currentGame, totalGames) {
   return chartData
 }
 
+function simulateTrainingGame (netConfig) {
+  const allGameNodeMoves = []
+
+  for (let i = 0; i < constants.ai.NUM_GAMES_TO_PLAY; i++) {
+    allGameNodeMoves.push(simulator.playOneEpisode(new TetrisGame(3, true), netConfig, false))
+  }
+
+  return allGameNodeMoves
+}
+
 module.exports = {
   create,
+  simulateTrainingGame,
   train
 }

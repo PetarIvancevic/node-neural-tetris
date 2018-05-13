@@ -51,7 +51,6 @@ function stripDuplicateMoves (newBlockMoves, allBlockMoveNodes) {
 function isFivePercentChance () {
   // generate random number
   // the chance of that number being 7 in this case is 5%
-  // return false
   const isIt = _.random(19) === 7
 
   if (isIt) {
@@ -92,7 +91,7 @@ function getFinalMoves (moveNodes) {
   .value()
 }
 
-function getBestMoveNode (tetrisGame, netConfig) {
+function getBestMoveNode (tetrisGame, netConfig, useRandom) {
   const finalMoves = getFinalMoves(generateAllMoveNodes(tetrisGame))
   let bestMoves = {moveValue: -100000, sameValueMoveIndexes: []}
   // add random function
@@ -131,7 +130,7 @@ function getBestMoveNode (tetrisGame, netConfig) {
   })
   const bestMoveIndex = bestMoves.sameValueMoveIndexes[_.random(_.size(bestMoves.sameValueMoveIndexes) - 1)]
 
-  if (isFivePercentChance()) {
+  if (useRandom && isFivePercentChance()) {
     const randomIndex = _.random(_.size(finalMoves) - 1)
     return finalMoves[randomIndex]
   }
@@ -139,12 +138,12 @@ function getBestMoveNode (tetrisGame, netConfig) {
   return finalMoves[bestMoveIndex]
 }
 
-function playOneEpisode (tetrisGame, netConfig) {
+function playOneEpisode (tetrisGame, netConfig, useRandom = true) {
   const allBestMoveNodes = []
   let gameMoves = 0
 
   while (!tetrisGame.isGameOver()) {
-    let bestMoveNode = getBestMoveNode(tetrisGame, netConfig)
+    let bestMoveNode = getBestMoveNode(tetrisGame, netConfig, useRandom)
 
     if (!bestMoveNode || gameMoves > constants.ai.MAX_GAME_MOVES) {
       break
