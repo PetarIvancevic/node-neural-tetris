@@ -7,7 +7,7 @@ const activationFn = 'leaky-relu'
 const hiddenLayers = [800]
 
 // neural network learning rate
-const learningRate = 0.3
+const learningRate = 0.03
 
 function constructNetworkInitialData (input, output) {
   const initialData = [{
