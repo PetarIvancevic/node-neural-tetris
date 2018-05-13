@@ -3,6 +3,7 @@ const _ = require('lodash')
 const gameBlocks = require('./components')
 // import {games} from 'constants'
 
+const constants = require('../constants')
 const fixed500Moves = require('../ai/theFixed500Moves')
 
 const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
@@ -94,7 +95,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
 
   const createGameBoard = function () {
     for (let i = 0; i < 10; i++) {
-      gameBoard[i] = new Array(20)
+      gameBoard[i] = new Array(constants.ai.ROW_COUNT)
     }
   }
 
@@ -131,7 +132,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
     for (let i = 0; i < _.size(positions); i++) {
       let {x, y} = positions[i]
 
-      if (positions[i].x < 0 || positions[i].x > 9 || positions[i].y < 0 || positions[i].y > 19) {
+      if (positions[i].x < 0 || positions[i].x > 9 || positions[i].y < 0 || positions[i].y > (constants.ai.ROW_COUNT - 1)) {
         return false
       }
 
@@ -183,7 +184,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
     }
 
     while (getFullRowsCount(tempGameBoard)) {
-      for (let i = 19; i >= 0; i--) {
+      for (let i = (constants.ai.ROW_COUNT - 1); i >= 0; i--) {
         let isRowFull = true
 
         for (let j = 0; j < 10; j++) {
@@ -205,7 +206,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
   const getFullRowsCount = function (tempGameBoard = gameBoard) {
     let numberOfFullRows = 0
 
-    for (let i = 19; i >= 0; i--) {
+    for (let i = (constants.ai.ROW_COUNT - 1); i >= 0; i--) {
       let isRowFull = true
 
       for (let j = 0; j < 10; j++) {
