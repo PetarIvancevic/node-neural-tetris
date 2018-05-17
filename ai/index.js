@@ -63,7 +63,7 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
   const moves = gameAllMoves
   const numMoves = _.size(moves)
 
-  let oldRes = netConfig.net.run(getVectorWithValues())
+  let oldRes = netConfig.net.run(getVectorWithValues())[0]
   const trainingSets = []
   let finalReward = 0
 
@@ -71,7 +71,7 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
 
   console.log('Training...')
   for (let i = 0; i < numMoves - 1; i++) {
-    if (moves[i].reward >= 0) {
+    if (moves[i].reward > 0) {
       finalReward += moves[i].reward
     }
 
@@ -79,9 +79,15 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
       printBoardVector(moves[i].boardVector)
     }
 
+    let currentNetState = netConfig.netNormalizedOutput(moves[i].boardVector)[0]
+    let reward = moves[i].reward
+    let nextNetState = netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0]
+
+    let netOutput = currentNetState + netConfig.learningRate * (reward + discountFactor * (nextNetState) - currentNetState)
+
     trainingSets.push({
       boardVector: moves[i].boardVector,
-      netOutput: [0.1 + moves[i].reward + discountFactor * netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0]]
+      netOutput: [netOutput]
     })
   }
 
@@ -149,8 +155,6 @@ async function train (netConfig, currentGame, totalGames, shouldPrintBoardVector
   if (!netConfig.net) {
     process.exit(1)
   }
-
-  console.log('called traing')
   const chartData = []
 
   console.log(`Playing... GAME: ${currentGame} / ${totalGames}`)
