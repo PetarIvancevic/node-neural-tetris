@@ -35,16 +35,17 @@ const aiTrackers = {
 // }
 
 function printBoardVector (boardVector) {
-  // console.log(JSON.stringify(boardVector))
   let row = []
 
+  console.log('---------BOARD VECTOR---------')
   for (let i = 0; i < constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT; i++) {
     row.push(boardVector[i])
     if ((i + 1) % 10 === 0) {
-      console.log(i, JSON.stringify(row))
+      console.log(_.padStart(i, 2), JSON.stringify(row))
       row = []
     }
   }
+  console.log('------END BOARD VECTOR-------')
 }
 
 function getVectorWithValues (fillVal = 0) {
@@ -57,7 +58,7 @@ function getVectorWithValues (fillVal = 0) {
   return arr
 }
 
-function updateNetwork (gameAllMoves, netConfig) {
+function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false) {
   // const moves = stripMovesDataForNetworkUpdate(gameAllMoves)
   const moves = gameAllMoves
   const numMoves = _.size(moves)
@@ -74,7 +75,9 @@ function updateNetwork (gameAllMoves, netConfig) {
       finalReward += moves[i].reward
     }
 
-    // printBoardVector(moves[i].boardVector)
+    if (shouldPrintBoardVector) {
+      printBoardVector(moves[i].boardVector)
+    }
 
     trainingSets.push({
       boardVector: moves[i].boardVector,
@@ -119,7 +122,7 @@ function create ({learningRate, hiddenLayers, activationFn, initialTrainingData,
     netNormalizedOutput: function (input) {
       // return this.net.run(input)
       const netResult = this.net.run(input)
-      return netResult[0] > 10 ? [10] : netResult < 0 ? 0 : netResult
+      return netResult[0] > 10 ? [10] : netResult[0] < 0 ? [0] : netResult
     }
   }
 
@@ -142,7 +145,7 @@ function create ({learningRate, hiddenLayers, activationFn, initialTrainingData,
   return netConfig
 }
 
-async function train (netConfig, currentGame, totalGames) {
+async function train (netConfig, currentGame, totalGames, shouldPrintBoardVector) {
   if (!netConfig.net) {
     process.exit(1)
   }
@@ -162,7 +165,7 @@ async function train (netConfig, currentGame, totalGames) {
     },
     numMoves: _.size(gameMoveNodes)
   })
-  updateNetwork(gameMoveNodes, netConfig)
+  updateNetwork(gameMoveNodes, netConfig, shouldPrintBoardVector)
 
   chartData[0].netValueAfter = {
     empty: netConfig.net.run(getVectorWithValues())[0],

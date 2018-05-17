@@ -1,7 +1,7 @@
 const _ = require('lodash')
 
 const gameBlocks = require('./components')
-// import {games} from 'constants'
+const {tetris} =  require('../constants')
 
 const constants = require('../constants')
 const fixed500Moves = require('../ai/theFixed500Moves')
@@ -16,7 +16,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
   const MAX_NUM_MOVES = 500
   let MOVE_NUM = 0
 
-  // const possibleBlockTypes = _keys(games.tetris.blockTypes)
+  const possibleBlockTypes = _.keys(tetris.blockTypes)
 
   this.advanceCurrentBlock = function () {
     if (frame % difficulty === 0) {
@@ -147,7 +147,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
   // TODO update to return normal random block generation
   const getRandomBlockType = function (nextBlockNum) {
     return fixed500Moves[nextBlockNum]
-    // return possibleBlockTypes[_random(0, _.size(possibleBlockTypes) - 1)]
+    // return possibleBlockTypes[_.random(0, _.size(possibleBlockTypes) - 1)]
   }
 
   const setupNextBlock = function (nextBlockNum) {

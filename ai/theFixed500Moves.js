@@ -501,10 +501,10 @@ let fixed500Moves = [
   'LBlock'
 ]
 
-// fixed500Moves = []
+fixed500Moves = []
 
-// for (let i = 0; i < 600; i++) {
-//   fixed500Moves.push('OBlock')
-// }
+for (let i = 0; i < 600; i++) {
+  fixed500Moves.push('OBlock')
+}
 
 module.exports = fixed500Moves
