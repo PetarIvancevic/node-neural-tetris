@@ -150,6 +150,7 @@ async function trainNetwork (folderName, numGames) {
 async function init ({continueTraining, name, count}) {
   await setup(continueTraining, name)
   await trainNetwork(name, count)
+  // const allGames = await ai.simulateTrainingGame(neuralNetwork)
 }
 
 if (!validateParams()) {
