@@ -137,8 +137,9 @@ function create ({learningRate, hiddenLayers, activationFn, initialTrainingData,
     netConfig.net.fromJSON(JSON.parse(oldNetworkWeights))
   } else {
     netConfig = _.assign({}, netConfig, {
+      learningRate: _.toNumber(learningRate),
       net: new brain.NeuralNetwork({
-        learningRate: _.toNumber(learningRate || netConfig.learningRate),
+        learningRate: _.toNumber(learningRate),
         activation: activationFn,
         hiddenLayers
       })
