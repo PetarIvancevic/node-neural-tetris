@@ -129,8 +129,10 @@ async function setup (continueTraining, folderName) {
 }
 
 async function trainNetwork (folderName, numGames) {
+  const printBoardVectors = false
+
   for (let gameNum = 0; gameNum < numGames; gameNum++) {
-    let trainingData = _.first(await ai.train(neuralNetwork, gameNum + 1, numGames))
+    let trainingData = _.first(await ai.train(neuralNetwork, gameNum + 1, numGames, printBoardVectors))
     await writeTrainingDataToFiles(folderName, trainingData)
 
     if (gameNum % 1000 === 0) {
