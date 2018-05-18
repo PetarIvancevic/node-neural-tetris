@@ -3,6 +3,7 @@ const _ = require('lodash')
 const constants = require('../constants')
 const gameLogic = require('./gameLogic')
 const TreeNode = require('./treeDataStructure')
+const explorationHelper = require('./explorationHelper')
 
 function makeMove (currentBlock, move, checkCollisionFn) {
   if (move === 'right' || move === 'left') {
@@ -101,7 +102,7 @@ function getFinalMoves (moveNodes) {
   return finalMoveNodes
 }
 
-function getBestMoveNode (tetrisGame, netConfig, useRandom) {
+function getBestMoveNode (tetrisGame, netConfig, useRandom, visitedMoveVectors) {
   const finalMoves = getFinalMoves(generateAllMoveNodes(tetrisGame))
   const numFinalMoves = _.size(finalMoves)
   let bestMoveIndex = 0
@@ -127,7 +128,9 @@ function getBestMoveNode (tetrisGame, netConfig, useRandom) {
 
     gameLogic.populateBoardWithActualMove(board, moveNode.block.occupiedPositions)
 
-    let moveValue = reward + netConfig.net.run(moveNode.boardVector)[0]
+    let explorationCoefficient = explorationHelper.isBoardVectorVisited(moveNode.boardVector, visitedMoveVectors) ? 0.7 : 1
+
+    let moveValue = reward + (netConfig.net.run(moveNode.boardVector)[0]) * explorationCoefficient
     // let moveValue = netConfig.net.run(moveNode.boardVector)[0]
 
     if (moveValue > bestMoveValue) {
@@ -141,15 +144,19 @@ function getBestMoveNode (tetrisGame, netConfig, useRandom) {
     return finalMoves[randomIndex]
   }
 
+  if (finalMoves[bestMoveIndex]) {
+    explorationHelper.addUniqueMoveBoardVector(finalMoves[bestMoveIndex].boardVector, visitedMoveVectors)
+  }
+
   return finalMoves[bestMoveIndex]
 }
 
-function playOneEpisode (tetrisGame, netConfig, useRandom = true) {
+function playOneEpisode (tetrisGame, netConfig, useRandom = true, visitedMoveVectors = []) {
   const allBestMoveNodes = []
   let gameMoves = 0
 
   while (!tetrisGame.isGameOver()) {
-    let bestMoveNode = getBestMoveNode(tetrisGame, netConfig, useRandom)
+    let bestMoveNode = getBestMoveNode(tetrisGame, netConfig, useRandom, visitedMoveVectors)
 
     if (!bestMoveNode || gameMoves > constants.ai.MAX_GAME_MOVES) {
       break

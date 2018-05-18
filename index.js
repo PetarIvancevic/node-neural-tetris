@@ -120,6 +120,16 @@ async function readNetworkFromFile (folderName) {
   neuralNetwork.net = neuralNetwork.net.fromJSON(JSON.parse(networkJSON))
 }
 
+async function getPrevisitedVectorMoves (folderName) {
+  const visitedMoveVectors = await fsPromise.readFileAsync(`${trainingDataFolder}/${folderName}/visited-moves-vector.txt`, 'utf8')
+  return JSON.parse(visitedMoveVectors)
+}
+
+async function writePrevisitedMoves (folderName, visitedMoveVectors) {
+  const folderPath = `${trainingDataFolder}/${folderName}/visited-moves-vector.txt`
+  return fsPromise.writeFileAsync(folderPath, JSON.stringify(visitedMoveVectors))
+}
+
 async function setup (continueTraining, folderName) {
   if (!continueTraining) {
     await createNewFolder(folderName)
@@ -128,28 +138,40 @@ async function setup (continueTraining, folderName) {
   }
 }
 
-async function trainNetwork (folderName, numGames) {
+async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
   const printBoardVectors = false
 
+  let visitedMoveVectors = preVisitedMoveVectors || []
+
+  await writeNetworkToFile(folderName, neuralNetwork.net)
+  await writePrevisitedMoves(folderName, visitedMoveVectors)
+
   for (let gameNum = 0; gameNum < numGames; gameNum++) {
-    let trainingData = _.first(await ai.train(neuralNetwork, gameNum + 1, numGames, printBoardVectors))
+    let trainingData = _.first(await ai.train(neuralNetwork, gameNum + 1, numGames, printBoardVectors, visitedMoveVectors))
     await writeTrainingDataToFiles(folderName, trainingData)
 
-    if (gameNum % 1000 === 0) {
+    if (_.size(visitedMoveVectors) > Math.pow(2, 23)) {
+      visitedMoveVectors = []
+    }
+
+    if (gameNum % 50 === 0) {
       await writeNetworkToFile(folderName, neuralNetwork.net)
-      let simulatedGameMoves = await ai.simulateTrainingGame(neuralNetwork)
-      await writeSimulatedGameMovesToFile(folderName, simulatedGameMoves)
+      await writePrevisitedMoves(folderName, visitedMoveVectors)
+      // let simulatedGameMoves = await ai.simulateTrainingGame(neuralNetwork)
+      // await writeSimulatedGameMovesToFile(folderName, simulatedGameMoves)
     }
   }
   await writeNetworkToFile(folderName, neuralNetwork.net)
-  await writeSimulatedGameMovesToFile(folderName, await ai.simulateTrainingGame(neuralNetwork))
+  await writePrevisitedMoves(folderName, visitedMoveVectors)
+  // await writeSimulatedGameMovesToFile(folderName, await ai.simulateTrainingGame(neuralNetwork))
 
   process.exit(0)
 }
 
 async function init ({continueTraining, name, count}) {
   await setup(continueTraining, name)
-  await trainNetwork(name, count)
+  const preVisitedMoveVectors = continueTraining ? await getPrevisitedVectorMoves(name) : []
+  await trainNetwork(name, count, preVisitedMoveVectors)
   // const allGames = await ai.simulateTrainingGame(neuralNetwork)
 }
 
