@@ -79,11 +79,12 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
       printBoardVector(moves[i].boardVector)
     }
 
-    let currentNetState = netConfig.netNormalizedOutput(moves[i].boardVector)[0]
+    let currentNetStateNormalized = netConfig.netNormalizedOutput(moves[i].boardVector)[0]
     let reward = moves[i].reward
-    let nextNetState = netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0]
+    let nextNetStateNormalized = netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0]
 
-    let netOutput = currentNetState + netConfig.learningRate * (reward + discountFactor * (nextNetState) - currentNetState)
+    // let netOutput = currentNetStateNormalized + netConfig.learningRate * (reward + discountFactor * (nextNetStateNormalized) - currentNetStateNormalized)
+    let netOutput = 0.1 + reward + nextNetStateNormalized
 
     trainingSets.push({
       boardVector: moves[i].boardVector,
@@ -152,7 +153,7 @@ function create ({learningRate, hiddenLayers, activationFn, initialTrainingData,
   return netConfig
 }
 
-async function train (netConfig, currentGame, totalGames, shouldPrintBoardVector) {
+async function train (netConfig, currentGame, totalGames, shouldPrintBoardVector, visitedMoveVectors) {
   if (!netConfig.net) {
     process.exit(1)
   }
@@ -160,7 +161,7 @@ async function train (netConfig, currentGame, totalGames, shouldPrintBoardVector
 
   console.log(`Playing... GAME: ${currentGame} / ${totalGames}`)
   let tetrisGame = new TetrisGame(3, true)
-  let gameMoveNodes = simulator.playOneEpisode(tetrisGame, netConfig)
+  let gameMoveNodes = simulator.playOneEpisode(tetrisGame, netConfig, false, visitedMoveVectors)
 
   chartData.push({
     totalPoints: tetrisGame.getScore(),
