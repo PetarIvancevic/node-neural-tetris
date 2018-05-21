@@ -120,7 +120,7 @@ function getBestMoveNode (tetrisGame, netConfig, useRandom, visitedMoveVectors) 
 
     let fullRowCount = gameLogic.getFullRowCount(board, occupiedRows)
     // reward is just calculating full rows or game lost
-    let reward = gameLogic.getMoveValue(fullRowCount, _.min(occupiedRows))
+    let reward = gameLogic.getMoveValue(fullRowCount)
 
     moveNode.setReward(reward)
     moveNode.setBoardVector(board, occupiedRows)
