@@ -30,7 +30,8 @@ const ai = {
 
 const generic = {
   EMPTY_CELL_VALUE: 0,
-  FILLED_CELL_VALUE: 1
+  FILLED_CELL_VALUE: 1,
+  VISITED_VECTOR_MAX_SIZE: Math.pow(2, 15)
 }
 
 module.exports = {

@@ -4,6 +4,7 @@ const fsPromise = Promise.promisifyAll(require('fs'))
 const minimist = require('minimist')
 
 const ai = require('./ai')
+const consts = require('./constants')
 const config = require('./config')
 
 const trainingDataFolder = 'training-data'
@@ -142,16 +143,34 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
   const printBoardVectors = false
 
   let visitedMoveVectors = preVisitedMoveVectors || []
+  let useRandom = false
+  let currentVisitedSize = _.size(visitedMoveVectors)
+  let sameSizeCount = 0
 
   await writeNetworkToFile(folderName, neuralNetwork.net)
   await writePrevisitedMoves(folderName, visitedMoveVectors)
 
   for (let gameNum = 0; gameNum < numGames; gameNum++) {
-    let trainingData = _.first(await ai.train(neuralNetwork, gameNum + 1, numGames, printBoardVectors, visitedMoveVectors))
+    let trainingData = _.first(await ai.train(neuralNetwork, gameNum + 1, numGames, printBoardVectors, useRandom, visitedMoveVectors))
     await writeTrainingDataToFiles(folderName, trainingData)
+    let visitedMoveVectorsSize = _.size(visitedMoveVectors)
+    console.log('Visited vector size:', visitedMoveVectorsSize, '/', consts.generic.VISITED_VECTOR_MAX_SIZE)
 
-    if (_.size(visitedMoveVectors) > Math.pow(2, 23)) {
+    if (visitedMoveVectorsSize > consts.generic.VISITED_VECTOR_MAX_SIZE) {
+      console.log('CLEARED THE VISITED VECTOR!')
       visitedMoveVectors = []
+    }
+
+    if (currentVisitedSize === visitedMoveVectorsSize) {
+      sameSizeCount++
+    }
+
+    if (sameSizeCount > 10) {
+      useRandom = true
+      sameSizeCount = 0
+    } else {
+      useRandom = false
+      currentVisitedSize = visitedMoveVectorsSize
     }
 
     if (gameNum % 50 === 0) {
