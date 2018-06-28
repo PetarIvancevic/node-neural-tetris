@@ -52,6 +52,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
     this.advanceTo500Moves()
 
     if (gameOver) {
+      console.log('GAME OVER')
       return
     }
 

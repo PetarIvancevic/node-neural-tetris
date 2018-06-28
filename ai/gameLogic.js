@@ -10,7 +10,6 @@ function pushFullRowsDown (board, occupiedRows) {
   const BOARD_VECTOR_MAX_HEIGHT_INDEX = constants.ai.ROW_COUNT
 
   function boardHasFullRows () {
-    // we are just working with 4 rows
     for (let row = BOARD_VECTOR_MAX_HEIGHT_INDEX; row >= 0; row--) {
       let rowIsFull = true
 
@@ -80,7 +79,7 @@ function getMoveValue (fullRowCount, minimalRowIndex) {
 
 function getFirstRowIndex (board) {
   for (let row = 0; row < constants.ai.ROW_COUNT; row++) {
-    for (let column = 0; column < 10; column++) {
+    for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
       if (board[column][row]) {
         return row
       }

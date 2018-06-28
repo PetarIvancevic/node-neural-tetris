@@ -87,8 +87,8 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
     let reward = moves[i].reward
     let nextNetStateNormalized = netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0]
 
-    // let netOutput = currentNetStateNormalized + netConfig.learningRate * (reward + discountFactor * (nextNetStateNormalized) - currentNetStateNormalized)
-    let netOutput = normalizeReluOutput(reward + discountFactor * nextNetStateNormalized)
+    let netOutput = currentNetStateNormalized + netConfig.learningRate * (reward + discountFactor * (nextNetStateNormalized) - currentNetStateNormalized)
+    // let netOutput = normalizeReluOutput(reward + discountFactor * nextNetStateNormalized)
 
     trainingSets.push({
       boardVector: moves[i].boardVector,
@@ -175,7 +175,13 @@ async function train (netConfig, currentGame, totalGames, shouldPrintBoardVector
     },
     numMoves: _.size(gameMoveNodes)
   })
-  updateNetwork(gameMoveNodes, netConfig, shouldPrintBoardVector)
+
+  if (_.size(gameMoveNodes) > 1) {
+    updateNetwork(gameMoveNodes, netConfig, shouldPrintBoardVector)
+  } else {
+    console.log('INSTANT LOSS')
+  }
+
 
   chartData[0].netValueAfter = {
     empty: netConfig.net.run(getVectorWithValues())[0],
