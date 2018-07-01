@@ -102,7 +102,7 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
       output: trainingSet.netOutput
     }
   }), {
-    iterations: 1
+    iterations: 20000
   })
 
   console.log(`

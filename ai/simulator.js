@@ -114,16 +114,16 @@ function getBestMoveNode (tetrisGame, netConfig, useRandom, visitedMoveVectors) 
     let moveNode = finalMoves[index]
     let board = tetrisGame.getBoard()
 
-    let occupiedRows = gameLogic.populateLowestFourYCoordsFromOccupiedPositions(board)
+    // let occupiedRows = gameLogic.populateLowestFourYCoordsFromOccupiedPositions(board)
     // BOARD CHANGED BY REFERENCE
     gameLogic.populateBoardWithActualMove(board, moveNode.block.occupiedPositions, constants.generic.FILLED_CELL_VALUE)
 
-    let fullRowCount = gameLogic.getFullRowCount(board, occupiedRows)
+    let fullRowCount = gameLogic.getFullRowCount(board)
     // reward is just calculating full rows or game lost
     let reward = gameLogic.getMoveValue(fullRowCount)
 
     moveNode.setReward(reward)
-    moveNode.setBoardVector(board, occupiedRows)
+    moveNode.setBoardVector(board)
     // moveNode.board = _.cloneDeep(board)
 
     gameLogic.populateBoardWithActualMove(board, moveNode.block.occupiedPositions)

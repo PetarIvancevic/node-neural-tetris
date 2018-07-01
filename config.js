@@ -4,10 +4,10 @@ const constants = require('./constants')
 const activationFn = 'leaky-relu'
 
 // neural network hidden layers
-const hiddenLayers = [800, 100]
+const hiddenLayers = [500, 300]
 
 // neural network learning rate
-const learningRate = 0.03
+const learningRate = 0.1
 
 function constructNetworkInitialData (input, output) {
   const initialData = [{

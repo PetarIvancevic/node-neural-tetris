@@ -2,10 +2,8 @@ const _ = require('lodash')
 
 const constants = require('../constants')
 
-function pushFullRowsDown (board, occupiedRows) {
+function pushFullRowsDown (board) {
   let tempGameBoard = _.cloneDeep(board)
-  let sortedOccupiedRows = _.clone(occupiedRows)
-  sortedOccupiedRows.sort()
 
   const BOARD_VECTOR_MAX_HEIGHT_INDEX = constants.ai.ROW_COUNT
 
@@ -125,11 +123,10 @@ function populateBoardWithActualMove (board, occupiedPositions, value) {
   }
 }
 
-function getFullRowCount (board, occupiedRows) {
+function getFullRowCount (board) {
   let fullRowCount = 0
 
-  for (let i = 0; i < constants.ai.ROW_COUNT; i++) {
-    let currentRow = occupiedRows[i]
+  for (let currentRow = 0; currentRow < constants.ai.ROW_COUNT; currentRow++) {
     let rowIsFull = true
 
     for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {

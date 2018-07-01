@@ -35,8 +35,8 @@ const TreeNode = function (parentNode, currentBlock) {
     this.reward = reward
   }
 
-  this.setBoardVector = function (board, occupiedRows) {
-    const cleanedBoard = gameLogic.pushFullRowsDown(board, occupiedRows)
+  this.setBoardVector = function (board) {
+    const cleanedBoard = gameLogic.pushFullRowsDown(board)
     this.boardVector = getBoardVector(cleanedBoard)
   }
 }
