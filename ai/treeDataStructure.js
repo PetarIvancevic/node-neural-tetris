@@ -23,6 +23,10 @@ const TreeNode = function (parentNode, currentBlock) {
   this.numMoves = 0
   this.reward = 0
 
+  this.setRandomMoveStatus = function (isRandomMove) {
+    this.isRandomMove = isRandomMove
+  }
+
   this.setNumMoves = function (numMoves) {
     this.numMoves = numMoves
   }

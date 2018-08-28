@@ -143,7 +143,7 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
   const printBoardVectors = false
 
   let visitedMoveVectors = preVisitedMoveVectors || []
-  let useRandom = false
+  let useRandom = true
   let currentVisitedSize = _.size(visitedMoveVectors)
   let sameSizeCount = 0
 
@@ -165,15 +165,7 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
       sameSizeCount++
     }
 
-    if (sameSizeCount > 10) {
-      useRandom = true
-      sameSizeCount = 0
-    } else {
-      useRandom = false
-      currentVisitedSize = visitedMoveVectorsSize
-    }
-
-    if (gameNum % 50 === 0) {
+    if (gameNum % 2 === 0) {
       await writeNetworkToFile(folderName, neuralNetwork.net)
       await writePrevisitedMoves(folderName, visitedMoveVectors)
       // let simulatedGameMoves = await ai.simulateTrainingGame(neuralNetwork)

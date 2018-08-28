@@ -79,16 +79,21 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
       finalReward += moves[i].reward
     }
 
-    if (shouldPrintBoardVector) {
-      printBoardVector(moves[i].boardVector)
-    }
+    // if (shouldPrintBoardVector) {
+    //   printBoardVector(moves[i].boardVector)
+    // }
 
     let currentNetStateNormalized = netConfig.netNormalizedOutput(moves[i].boardVector)[0]
     let reward = moves[i].reward
     let nextNetStateNormalized = netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0]
 
-    let netOutput = currentNetStateNormalized + netConfig.learningRate * (reward + discountFactor * (nextNetStateNormalized) - currentNetStateNormalized)
-    // let netOutput = normalizeReluOutput(reward + discountFactor * nextNetStateNormalized)
+    // let netOutput = currentNetStateNormalized + netConfig.learningRate * (reward + discountFactor * (nextNetStateNormalized) - currentNetStateNormalized)
+    let netOutput = 0.1 + normalizeReluOutput(reward + discountFactor * nextNetStateNormalized)
+
+    if (_.size(moves[i].boardVector) !== constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT) {
+      console.log('nije', constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT)
+      console.log(moves[i].boardVector)
+    }
 
     trainingSets.push({
       boardVector: moves[i].boardVector,
@@ -102,7 +107,7 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
       output: trainingSet.netOutput
     }
   }), {
-    iterations: 20000
+    iterations: 1
   })
 
   console.log(`

@@ -121,6 +121,7 @@ function getBestMoveNode (tetrisGame, netConfig, useRandom, visitedMoveVectors) 
     let fullRowCount = gameLogic.getFullRowCount(board)
     // reward is just calculating full rows or game lost
     let reward = gameLogic.getMoveValue(fullRowCount)
+    // let reward = gameLogic.getMoveValueWithBetterHeuristics(board, tetrisGame.isGameOver())
 
     moveNode.setReward(reward)
     moveNode.setBoardVector(board)
@@ -128,10 +129,10 @@ function getBestMoveNode (tetrisGame, netConfig, useRandom, visitedMoveVectors) 
 
     gameLogic.populateBoardWithActualMove(board, moveNode.block.occupiedPositions)
 
-    let explorationCoefficient = explorationHelper.isBoardVectorVisited(moveNode.boardVector, visitedMoveVectors) ? 0.7 : 1
+    let explorationCoefficient = explorationHelper.isBoardVectorVisited(moveNode.boardVector, visitedMoveVectors) ? 0.3 : 1
 
-    let moveValue = reward + (netConfig.net.run(moveNode.boardVector)[0]) * explorationCoefficient
-    // let moveValue = netConfig.net.run(moveNode.boardVector)[0]
+    // let moveValue = reward + (netConfig.net.run(moveNode.boardVector)[0]) * explorationCoefficient
+    let moveValue = reward + netConfig.net.run(moveNode.boardVector)[0]
 
     if (moveValue > bestMoveValue) {
       bestMoveIndex = index
@@ -141,6 +142,13 @@ function getBestMoveNode (tetrisGame, netConfig, useRandom, visitedMoveVectors) 
 
   if (useRandom && isFivePercentChance()) {
     let randomIndex = _.random(_.size(finalMoves) - 1)
+
+    if (!finalMoves[randomIndex]) {
+      console.log('ma kako?', finalMoves, randomIndex)
+      return
+    }
+
+    finalMoves[randomIndex].setRandomMoveStatus(true)
     return finalMoves[randomIndex]
   }
 

@@ -22,8 +22,8 @@ const tetris = {
 
 const ai = {
   COLUMN_COUNT: 10,
-  ROW_COUNT: 5,
-  VECTOR_ROW_COUNT: 5,
+  ROW_COUNT: 10,
+  VECTOR_ROW_COUNT: 10,
   MAX_GAME_MOVES: 500,
   NUM_GAMES_TO_PLAY: 10
 }
@@ -31,7 +31,7 @@ const ai = {
 const generic = {
   EMPTY_CELL_VALUE: 0,
   FILLED_CELL_VALUE: 1,
-  VISITED_VECTOR_MAX_SIZE: Math.pow(2, 15)
+  VISITED_VECTOR_MAX_SIZE: Math.pow(2, 12)
 }
 
 module.exports = {
