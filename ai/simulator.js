@@ -25,17 +25,13 @@ function generateMoves (currentBlock, checkCollisionFn) {
     return []
   }
   const possibleMoves = []
-  const possibleMovements = ['left']
+  const possibleMovements = ['left', 'right', 'rotate']
   const possibleMovementsSize = _.size(possibleMovements)
 
   for (let i = 0; i < possibleMovementsSize; i++) {
-    console.log('asdasd', possibleMovements[i])
     possibleMoves.push(makeMove(_.cloneDeep(currentBlock), possibleMovements[i]))
   }
-  console.log('sadsadasdasd')
   possibleMoves.push(makeMove(_.cloneDeep(currentBlock), 'down', checkCollisionFn))
-
-  console.log('potezi', possibleMoves)
 
   return possibleMoves
 }
@@ -74,22 +70,14 @@ function generateAllMoveNodes (tetrisGame) {
   let allMoveNodes = [new TreeNode(null, tetrisGame.getCurrentBlock())]
   let blockPositions = [_.cloneDeep(tetrisGame.getCurrentBlock())]
 
-  console.log(blockPositions)
-
   while (_.size(blockPositions)) {
     let parentMove = blockPositions.pop()
-    console.log('???')
     let newMoves = generateMoves(parentMove, tetrisGame.getCheckCollisionFn())
     let newUniqueMoves = stripDuplicateMoves(newMoves, allMoveNodes)
-
-    console.log(newMoves, _.size(newMoves), newMoves[0])
-    console.log(newMoves[0].occupiedPositions)
 
     let uniqueMoveNodes = []
     for (let uniqueMoveIndex = 0; uniqueMoveIndex < _.size(newUniqueMoves); uniqueMoveIndex++) {
       let uniqueMove = newUniqueMoves[uniqueMoveIndex]
-      console.log('test')
-      printBoardVector(uniqueMove)
       uniqueMoveNodes.push(new TreeNode(null, uniqueMove))
     }
 
@@ -120,7 +108,7 @@ function printBoardVector (boardVector) {
   console.log('---------BOARD VECTOR---------')
   for (let i = 0; i < constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT; i++) {
     row.push(boardVector[i])
-    if ((i + 1) % 5 === 0) {
+    if ((i + 1) % constants.ai.ROW_COUNT === 0) {
       console.log(_.padStart(i, 2), JSON.stringify(row))
       row = []
     }
@@ -135,6 +123,8 @@ function getBestMoveNode (tetrisGame, netConfig, useRandom, visitedMoveVectors) 
   let bestMoveValue = 0
   // add random function
   // WATCH OUT FOR BOARD VECTOR GENERATION!
+
+  // console.log('MOVE COUNT', tetrisGame.getMoveCount())
 
   for (let index = 0; index < numFinalMoves; index++) {
     let moveNode = finalMoves[index]
@@ -160,8 +150,8 @@ function getBestMoveNode (tetrisGame, netConfig, useRandom, visitedMoveVectors) 
     // let moveValue = reward + (netConfig.net.run(moveNode.boardVector)[0]) * explorationCoefficient
     let moveValue = reward + netConfig.net.run(moveNode.boardVector)[0]
 
-    console.log('?????', moveValue)
-    printBoardVector(moveNode.boardVector)
+    // printBoardVector(moveNode.boardVector)
+    // console.log('Move value:', moveValue)
 
     if (moveValue > bestMoveValue) {
       bestMoveIndex = index

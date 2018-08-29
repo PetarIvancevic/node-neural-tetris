@@ -131,11 +131,10 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
   this.getCheckCollisionFn = function () { return checkCollision }
 
   const isRotationPossible = function (positions) {
-    return false
     for (let i = 0; i < _.size(positions); i++) {
       let {x, y} = positions[i]
 
-      if (positions[i].x < 0 || positions[i].x > (constants.COLUMN_COUNT - 1) || positions[i].y < 0 || positions[i].y > (constants.ai.ROW_COUNT - 1)) {
+      if (x < 0 || x > (constants.ai.ROW_COUNT - 1) || y < 0 || y > (constants.ai.ROW_COUNT - 1)) {
         return false
       }
 

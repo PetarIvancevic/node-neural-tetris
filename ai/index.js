@@ -40,7 +40,7 @@ function printBoardVector (boardVector) {
   console.log('---------BOARD VECTOR---------')
   for (let i = 0; i < constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT; i++) {
     row.push(boardVector[i])
-    if ((i + 1) % 10 === 0) {
+    if ((i + 1) % constants.ai.ROW_COUNT === 0) {
       console.log(_.padStart(i, 2), JSON.stringify(row))
       row = []
     }
@@ -60,6 +60,12 @@ function getVectorWithValues (fillVal = 0) {
 
 function normalizeReluOutput (output) {
   return output > 10 ? 10 : output
+}
+
+function printGame (gameAllMoves) {
+  for (let i = 0; i < _.size(gameAllMoves); i++) {
+    printBoardVector(gameAllMoves[i].boardVector)
+  }
 }
 
 function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false) {
@@ -90,11 +96,6 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
     // let netOutput = currentNetStateNormalized + netConfig.learningRate * (reward + discountFactor * (nextNetStateNormalized) - currentNetStateNormalized)
     let netOutput = 0.1 + normalizeReluOutput(reward + discountFactor * nextNetStateNormalized)
 
-    if (_.size(moves[i].boardVector) !== constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT) {
-      console.log('nije', constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT)
-      console.log(moves[i].boardVector)
-    }
-
     trainingSets.push({
       boardVector: moves[i].boardVector,
       netOutput: [netOutput]
@@ -109,6 +110,15 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
   }), {
     iterations: 1
   })
+
+  netConfig.net.train({
+    input: _.last(gameAllMoves).boardVector,
+    output: [0]
+  }, {
+    iterations: 1
+  })
+
+  printGame(gameAllMoves)
 
   console.log(`
     OLD: ${oldRes}
