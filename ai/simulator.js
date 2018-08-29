@@ -25,13 +25,17 @@ function generateMoves (currentBlock, checkCollisionFn) {
     return []
   }
   const possibleMoves = []
-  const possibleMovements = ['left', 'right', 'rotate']
+  const possibleMovements = ['left']
   const possibleMovementsSize = _.size(possibleMovements)
 
   for (let i = 0; i < possibleMovementsSize; i++) {
+    console.log('asdasd', possibleMovements[i])
     possibleMoves.push(makeMove(_.cloneDeep(currentBlock), possibleMovements[i]))
   }
+  console.log('sadsadasdasd')
   possibleMoves.push(makeMove(_.cloneDeep(currentBlock), 'down', checkCollisionFn))
+
+  console.log('potezi', possibleMoves)
 
   return possibleMoves
 }
@@ -70,14 +74,22 @@ function generateAllMoveNodes (tetrisGame) {
   let allMoveNodes = [new TreeNode(null, tetrisGame.getCurrentBlock())]
   let blockPositions = [_.cloneDeep(tetrisGame.getCurrentBlock())]
 
+  console.log(blockPositions)
+
   while (_.size(blockPositions)) {
     let parentMove = blockPositions.pop()
+    console.log('???')
     let newMoves = generateMoves(parentMove, tetrisGame.getCheckCollisionFn())
     let newUniqueMoves = stripDuplicateMoves(newMoves, allMoveNodes)
+
+    console.log(newMoves, _.size(newMoves), newMoves[0])
+    console.log(newMoves[0].occupiedPositions)
 
     let uniqueMoveNodes = []
     for (let uniqueMoveIndex = 0; uniqueMoveIndex < _.size(newUniqueMoves); uniqueMoveIndex++) {
       let uniqueMove = newUniqueMoves[uniqueMoveIndex]
+      console.log('test')
+      printBoardVector(uniqueMove)
       uniqueMoveNodes.push(new TreeNode(null, uniqueMove))
     }
 
