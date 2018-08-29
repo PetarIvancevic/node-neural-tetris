@@ -95,7 +95,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
   }
 
   const createGameBoard = function () {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < constants.ai.COLUMN_COUNT; i++) {
       gameBoard[i] = new Array(constants.ai.ROW_COUNT)
     }
   }

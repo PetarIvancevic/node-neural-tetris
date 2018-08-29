@@ -102,6 +102,20 @@ function getFinalMoves (moveNodes) {
   return finalMoveNodes
 }
 
+function printBoardVector (boardVector) {
+  let row = []
+
+  console.log('---------BOARD VECTOR---------')
+  for (let i = 0; i < constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT; i++) {
+    row.push(boardVector[i])
+    if ((i + 1) % 5 === 0) {
+      console.log(_.padStart(i, 2), JSON.stringify(row))
+      row = []
+    }
+  }
+  console.log('------END BOARD VECTOR-------')
+}
+
 function getBestMoveNode (tetrisGame, netConfig, useRandom, visitedMoveVectors) {
   const finalMoves = getFinalMoves(generateAllMoveNodes(tetrisGame))
   const numFinalMoves = _.size(finalMoves)
@@ -134,6 +148,9 @@ function getBestMoveNode (tetrisGame, netConfig, useRandom, visitedMoveVectors) 
     // let moveValue = reward + (netConfig.net.run(moveNode.boardVector)[0]) * explorationCoefficient
     let moveValue = reward + netConfig.net.run(moveNode.boardVector)[0]
 
+    console.log('?????', moveValue)
+    printBoardVector(moveNode.boardVector)
+
     if (moveValue > bestMoveValue) {
       bestMoveIndex = index
       bestMoveValue = moveValue
@@ -144,7 +161,6 @@ function getBestMoveNode (tetrisGame, netConfig, useRandom, visitedMoveVectors) 
     let randomIndex = _.random(_.size(finalMoves) - 1)
 
     if (!finalMoves[randomIndex]) {
-      console.log('ma kako?', finalMoves, randomIndex)
       return
     }
 
