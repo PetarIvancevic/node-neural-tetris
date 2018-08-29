@@ -23,6 +23,10 @@ const TreeNode = function (parentNode, currentBlock) {
   this.numMoves = 0
   this.reward = 0
 
+  this.setRandomMoveStatus = function (isRandomMove) {
+    this.isRandomMove = isRandomMove
+  }
+
   this.setNumMoves = function (numMoves) {
     this.numMoves = numMoves
   }
@@ -35,8 +39,8 @@ const TreeNode = function (parentNode, currentBlock) {
     this.reward = reward
   }
 
-  this.setBoardVector = function (board, occupiedRows) {
-    const cleanedBoard = gameLogic.pushFullRowsDown(board, occupiedRows)
+  this.setBoardVector = function (board) {
+    const cleanedBoard = gameLogic.pushFullRowsDown(board)
     this.boardVector = getBoardVector(cleanedBoard)
   }
 }

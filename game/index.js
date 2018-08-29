@@ -7,7 +7,7 @@ const constants = require('../constants')
 const fixed500Moves = require('../ai/theFixed500Moves')
 
 const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
-  let gameBoard = new Array(10)
+  let gameBoard = new Array(constants.ai.COLUMN_COUNT)
   let gameOver = false
   let score = 0
   let frame = 1
@@ -95,12 +95,13 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
   }
 
   const createGameBoard = function () {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < constants.ai.COLUMN_COUNT; i++) {
       gameBoard[i] = new Array(constants.ai.ROW_COUNT)
     }
   }
 
   const checkCollision = function (x, y) {
+    // console.log(x, y, gameBoard)
     return !!gameBoard[x][y]
   }
 
@@ -133,7 +134,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
     for (let i = 0; i < _.size(positions); i++) {
       let {x, y} = positions[i]
 
-      if (positions[i].x < 0 || positions[i].x > 9 || positions[i].y < 0 || positions[i].y > (constants.ai.ROW_COUNT - 1)) {
+      if (x < 0 || x > (constants.ai.ROW_COUNT - 1) || y < 0 || y > (constants.ai.ROW_COUNT - 1)) {
         return false
       }
 
@@ -163,24 +164,24 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
 
   const pushFullRowsDown = function () {
     function pushRowsDownFromIndex (rowIndex) {
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < constants.ai.ROW_COUNT; i++) {
         delete tempGameBoard[i][rowIndex]
       }
 
       for (let i = rowIndex; i > 0; i--) {
-        for (let j = 0; j < 10; j++) {
+        for (let j = 0; j < constants.ai.ROW_COUNT; j++) {
           tempGameBoard[j][i] = tempGameBoard[j][i - 1]
         }
       }
 
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < constants.ai.ROW_COUNT; i++) {
         tempGameBoard[i][0] = null
       }
     }
 
     let tempGameBoard = []
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < constants.ai.ROW_COUNT; i++) {
       tempGameBoard[i] = gameBoard[i].slice()
     }
 
@@ -188,7 +189,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
       for (let i = (constants.ai.ROW_COUNT - 1); i >= 0; i--) {
         let isRowFull = true
 
-        for (let j = 0; j < 10; j++) {
+        for (let j = 0; j < constants.ai.ROW_COUNT; j++) {
           if (!tempGameBoard[j][i]) {
             isRowFull = false
           }
@@ -210,7 +211,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
     for (let i = (constants.ai.ROW_COUNT - 1); i >= 0; i--) {
       let isRowFull = true
 
-      for (let j = 0; j < 10; j++) {
+      for (let j = 0; j < constants.ai.ROW_COUNT; j++) {
         if (!tempGameBoard[j][i]) {
           isRowFull = false
         }

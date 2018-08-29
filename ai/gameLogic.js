@@ -2,10 +2,8 @@ const _ = require('lodash')
 
 const constants = require('../constants')
 
-function pushFullRowsDown (board, occupiedRows) {
+function pushFullRowsDown (board) {
   let tempGameBoard = _.cloneDeep(board)
-  let sortedOccupiedRows = _.clone(occupiedRows)
-  sortedOccupiedRows.sort()
 
   const BOARD_VECTOR_MAX_HEIGHT_INDEX = constants.ai.ROW_COUNT
 
@@ -73,6 +71,47 @@ function getMoveValue (fullRowCount, minimalRowIndex) {
   return fullRowCount * 1
 }
 
+function getHoleCoefficient (board) {
+  let numHoles = 0
+
+  for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
+    let indexOfHole = _.findLastIndex(board[column], function (boardBlock) {return !boardBlock})
+    let indexOfHighestBlock = _.findIndex(board[column], function (boardBlock) {return boardBlock})
+
+    if (indexOfHole > indexOfHighestBlock && indexOfHighestBlock !== -1) {
+      numHoles++
+    }
+  }
+
+  return (numHoles / constants.ai.COLUMN_COUNT) / 1.7
+}
+
+function getHeightCoefficient (board) {
+  let heightCoefficient = 0
+
+  for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
+    let indexOfHighestBlock = _.findIndex(board[column], function (boardBlock) {return boardBlock})
+
+    if (indexOfHighestBlock !== -1) {
+      heightCoefficient += (indexOfHighestBlock / (constants.ai.COLUMN_COUNT * constants.ai.ROW_COUNT))
+    }
+  }
+
+  return (heightCoefficient / constants.ai.COLUMN_COUNT)
+}
+
+function getMoveValueWithBetterHeuristics (board, isGameOver) {
+  if (isGameOver) {
+    return -10
+  }
+
+  const holeCoefficient = getHoleCoefficient(board)
+  const fullRowCount = getFullRowCount(board)
+  const heightCoefficient = getHeightCoefficient(board)
+
+  return (fullRowCount * 1) - holeCoefficient + heightCoefficient
+}
+
 /*
   From lowest Y coordinate create 4 rows so we can create a board vector later
 */
@@ -125,11 +164,10 @@ function populateBoardWithActualMove (board, occupiedPositions, value) {
   }
 }
 
-function getFullRowCount (board, occupiedRows) {
+function getFullRowCount (board) {
   let fullRowCount = 0
 
-  for (let i = 0; i < constants.ai.ROW_COUNT; i++) {
-    let currentRow = occupiedRows[i]
+  for (let currentRow = 0; currentRow < constants.ai.ROW_COUNT; currentRow++) {
     let rowIsFull = true
 
     for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
@@ -148,9 +186,10 @@ function getFullRowCount (board, occupiedRows) {
 }
 
 module.exports = {
-  getMoveValue,
   getFullRowCount,
-  pushFullRowsDown,
+  getMoveValue,
+  getMoveValueWithBetterHeuristics,
+  populateBoardWithActualMove,
   populateLowestFourYCoordsFromOccupiedPositions,
-  populateBoardWithActualMove
+  pushFullRowsDown
 }

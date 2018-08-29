@@ -102,6 +102,20 @@ function getFinalMoves (moveNodes) {
   return finalMoveNodes
 }
 
+function printBoardVector (boardVector) {
+  let row = []
+
+  console.log('---------BOARD VECTOR---------')
+  for (let i = 0; i < constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT; i++) {
+    row.push(boardVector[i])
+    if ((i + 1) % constants.ai.ROW_COUNT === 0) {
+      console.log(_.padStart(i, 2), JSON.stringify(row))
+      row = []
+    }
+  }
+  console.log('------END BOARD VECTOR-------')
+}
+
 function getBestMoveNode (tetrisGame, netConfig, useRandom, visitedMoveVectors) {
   const finalMoves = getFinalMoves(generateAllMoveNodes(tetrisGame))
   const numFinalMoves = _.size(finalMoves)
@@ -110,28 +124,34 @@ function getBestMoveNode (tetrisGame, netConfig, useRandom, visitedMoveVectors) 
   // add random function
   // WATCH OUT FOR BOARD VECTOR GENERATION!
 
+  // console.log('MOVE COUNT', tetrisGame.getMoveCount())
+
   for (let index = 0; index < numFinalMoves; index++) {
     let moveNode = finalMoves[index]
     let board = tetrisGame.getBoard()
 
-    let occupiedRows = gameLogic.populateLowestFourYCoordsFromOccupiedPositions(board)
+    // let occupiedRows = gameLogic.populateLowestFourYCoordsFromOccupiedPositions(board)
     // BOARD CHANGED BY REFERENCE
     gameLogic.populateBoardWithActualMove(board, moveNode.block.occupiedPositions, constants.generic.FILLED_CELL_VALUE)
 
-    let fullRowCount = gameLogic.getFullRowCount(board, occupiedRows)
+    let fullRowCount = gameLogic.getFullRowCount(board)
     // reward is just calculating full rows or game lost
     let reward = gameLogic.getMoveValue(fullRowCount)
+    // let reward = gameLogic.getMoveValueWithBetterHeuristics(board, tetrisGame.isGameOver())
 
     moveNode.setReward(reward)
-    moveNode.setBoardVector(board, occupiedRows)
+    moveNode.setBoardVector(board)
     // moveNode.board = _.cloneDeep(board)
 
     gameLogic.populateBoardWithActualMove(board, moveNode.block.occupiedPositions)
 
-    let explorationCoefficient = explorationHelper.isBoardVectorVisited(moveNode.boardVector, visitedMoveVectors) ? 0.7 : 1
+    let explorationCoefficient = explorationHelper.isBoardVectorVisited(moveNode.boardVector, visitedMoveVectors) ? 0.3 : 1
 
-    let moveValue = reward + (netConfig.net.run(moveNode.boardVector)[0]) * explorationCoefficient
-    // let moveValue = netConfig.net.run(moveNode.boardVector)[0]
+    // let moveValue = reward + (netConfig.net.run(moveNode.boardVector)[0]) * explorationCoefficient
+    let moveValue = reward + netConfig.net.run(moveNode.boardVector)[0]
+
+    // printBoardVector(moveNode.boardVector)
+    // console.log('Move value:', moveValue)
 
     if (moveValue > bestMoveValue) {
       bestMoveIndex = index
@@ -141,6 +161,12 @@ function getBestMoveNode (tetrisGame, netConfig, useRandom, visitedMoveVectors) 
 
   if (useRandom && isFivePercentChance()) {
     let randomIndex = _.random(_.size(finalMoves) - 1)
+
+    if (!finalMoves[randomIndex]) {
+      return
+    }
+
+    finalMoves[randomIndex].setRandomMoveStatus(true)
     return finalMoves[randomIndex]
   }
 

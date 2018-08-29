@@ -40,7 +40,7 @@ function printBoardVector (boardVector) {
   console.log('---------BOARD VECTOR---------')
   for (let i = 0; i < constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT; i++) {
     row.push(boardVector[i])
-    if ((i + 1) % 10 === 0) {
+    if ((i + 1) % constants.ai.ROW_COUNT === 0) {
       console.log(_.padStart(i, 2), JSON.stringify(row))
       row = []
     }
@@ -62,6 +62,12 @@ function normalizeReluOutput (output) {
   return output > 10 ? 10 : output
 }
 
+function printGame (gameAllMoves) {
+  for (let i = 0; i < _.size(gameAllMoves); i++) {
+    printBoardVector(gameAllMoves[i].boardVector)
+  }
+}
+
 function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false) {
   // const moves = stripMovesDataForNetworkUpdate(gameAllMoves)
   const moves = gameAllMoves
@@ -79,16 +85,16 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
       finalReward += moves[i].reward
     }
 
-    if (shouldPrintBoardVector) {
-      printBoardVector(moves[i].boardVector)
-    }
+    // if (shouldPrintBoardVector) {
+    //   printBoardVector(moves[i].boardVector)
+    // }
 
     let currentNetStateNormalized = netConfig.netNormalizedOutput(moves[i].boardVector)[0]
     let reward = moves[i].reward
     let nextNetStateNormalized = netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0]
 
-    let netOutput = currentNetStateNormalized + netConfig.learningRate * (reward + discountFactor * (nextNetStateNormalized) - currentNetStateNormalized)
-    // let netOutput = normalizeReluOutput(reward + discountFactor * nextNetStateNormalized)
+    // let netOutput = currentNetStateNormalized + netConfig.learningRate * (reward + discountFactor * (nextNetStateNormalized) - currentNetStateNormalized)
+    let netOutput = 0.1 + normalizeReluOutput(reward + discountFactor * nextNetStateNormalized)
 
     trainingSets.push({
       boardVector: moves[i].boardVector,
@@ -104,6 +110,15 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
   }), {
     iterations: 1
   })
+
+  netConfig.net.train({
+    input: _.last(gameAllMoves).boardVector,
+    output: [0]
+  }, {
+    iterations: 1
+  })
+
+  printGame(gameAllMoves)
 
   console.log(`
     OLD: ${oldRes}
