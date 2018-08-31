@@ -1,3 +1,5 @@
+const config = require('../config')
+
 let fixed500Moves = [
   'OBlock',
   'ZBlock',
@@ -501,10 +503,14 @@ let fixed500Moves = [
   'LBlock'
 ]
 
-// fixed500Moves = []
+if (config.fixedBlock) {
+  fixed500Moves = []
 
-// for (let i = 0; i < 501; i++) {
-//   fixed500Moves.push('LBlock')
-// }
+  for (let i = 0; i < 501; i++) {
+    fixed500Moves.push(config.fixedBlock)
+  }
+  console.log('GAMES ARE FIXED TO BLOCK', config.fixedBlock)
+}
+
 
 module.exports = fixed500Moves

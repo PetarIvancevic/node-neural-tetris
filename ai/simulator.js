@@ -153,6 +153,11 @@ function getBestMoveNode (tetrisGame, netConfig, useRandom, visitedMoveVectors) 
     // printBoardVector(moveNode.boardVector)
     // console.log('Move value:', moveValue)
 
+    if (_.isNaN(moveValue)) {
+      console.log('Move value is NaN!', moveValue)
+      process.exit(1)
+    }
+
     if (moveValue > bestMoveValue) {
       bestMoveIndex = index
       bestMoveValue = moveValue

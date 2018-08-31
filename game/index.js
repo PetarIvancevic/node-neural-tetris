@@ -72,8 +72,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
     const fullRowCount = getFullRowsCount()
 
     if (fullRowCount) {
-      let bonusPoints = fullRowCount > 1 ? fullRowCount * 0.5 : 0
-      score += fullRowCount * 10 + (10 * bonusPoints)
+      score += fullRowCount * 10
       pushFullRowsDown()
     }
   }

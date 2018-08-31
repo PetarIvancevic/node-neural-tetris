@@ -1,6 +1,7 @@
 const _ = require('lodash')
 const brain = require('brain.js')
 
+const appConfig = require('../config')
 const constants = require('../constants')
 const simulator = require('./simulator')
 const TetrisGame = require('../game')
@@ -191,12 +192,13 @@ async function train (netConfig, currentGame, totalGames, shouldPrintBoardVector
     numMoves: _.size(gameMoveNodes)
   })
 
-  if (_.size(gameMoveNodes) > 1) {
-    updateNetwork(gameMoveNodes, netConfig, shouldPrintBoardVector)
-  } else {
-    console.log('INSTANT LOSS')
+  if (appConfig.useRandom) {
+    if (_.size(gameMoveNodes) > 1) {
+      updateNetwork(gameMoveNodes, netConfig, shouldPrintBoardVector)
+    } else {
+      console.log('INSTANT LOSS')
+    }
   }
-
 
   chartData[0].netValueAfter = {
     empty: netConfig.net.run(getVectorWithValues())[0],

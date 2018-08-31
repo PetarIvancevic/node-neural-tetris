@@ -143,7 +143,6 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
   const printBoardVectors = false
 
   let visitedMoveVectors = preVisitedMoveVectors || []
-  let useRandom = true
   let currentVisitedSize = _.size(visitedMoveVectors)
   let sameSizeCount = 0
 
@@ -151,7 +150,7 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
   await writePrevisitedMoves(folderName, visitedMoveVectors)
 
   for (let gameNum = 0; gameNum < numGames; gameNum++) {
-    let trainingData = _.first(await ai.train(neuralNetwork, gameNum + 1, numGames, printBoardVectors, useRandom, visitedMoveVectors))
+    let trainingData = _.first(await ai.train(neuralNetwork, gameNum + 1, numGames, printBoardVectors, config.useRandom, visitedMoveVectors))
     await writeTrainingDataToFiles(folderName, trainingData)
     let visitedMoveVectorsSize = _.size(visitedMoveVectors)
     console.log('Visited vector size:', visitedMoveVectorsSize, '/', consts.generic.VISITED_VECTOR_MAX_SIZE)
@@ -165,11 +164,16 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
       sameSizeCount++
     }
 
-    if (gameNum % 2 === 0) {
+    // if (gameNum % 2 === 0) {
       await writeNetworkToFile(folderName, neuralNetwork.net)
-      await writePrevisitedMoves(folderName, visitedMoveVectors)
+      // await writePrevisitedMoves(folderName, visitedMoveVectors)
       // let simulatedGameMoves = await ai.simulateTrainingGame(neuralNetwork)
       // await writeSimulatedGameMovesToFile(folderName, simulatedGameMoves)
+    // }
+
+    if (trainingData.totalPoints >= config.learnedRewardNum || trainingData.numMoves >= config.maxMoveCount) {
+      console.log('I THINK HE GOT IT!!!')
+      process.exit(0)
     }
   }
   await writeNetworkToFile(folderName, neuralNetwork.net)
