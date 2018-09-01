@@ -171,9 +171,9 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
       // await writeSimulatedGameMovesToFile(folderName, simulatedGameMoves)
     // }
 
-    if (trainingData.totalPoints >= config.learnedRewardNum || trainingData.numMoves >= config.maxMoveCount) {
+    if (config.shouldTrainNetwork && (trainingData.totalPoints >= config.learnedRewardNum || trainingData.numMoves >= config.maxMoveCount)) {
       console.log('I THINK HE GOT IT!!!')
-      process.exit(0)
+      // process.exit(0)
     }
   }
   await writeNetworkToFile(folderName, neuralNetwork.net)

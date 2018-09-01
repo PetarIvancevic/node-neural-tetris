@@ -192,7 +192,9 @@ async function train (netConfig, currentGame, totalGames, shouldPrintBoardVector
     numMoves: _.size(gameMoveNodes)
   })
 
-  if (appConfig.useRandom) {
+  appConfig.shouldTrainNetwork = _.size(gameMoveNodes) < 500
+
+  if (appConfig.shouldTrainNetwork) {
     if (_.size(gameMoveNodes) > 1) {
       updateNetwork(gameMoveNodes, netConfig, shouldPrintBoardVector)
     } else {
