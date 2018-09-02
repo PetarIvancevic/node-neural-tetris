@@ -142,6 +142,11 @@ async function setup (continueTraining, folderName) {
 async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
   const printBoardVectors = false
 
+  const gameConfigValues = {
+    shouldTrainNetwork: config.shouldTrainNetwork,
+    useRandom: config.useRandom,
+  }
+
   let visitedMoveVectors = preVisitedMoveVectors || []
   let currentVisitedSize = _.size(visitedMoveVectors)
   let sameSizeCount = 0
@@ -150,7 +155,8 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
   await writePrevisitedMoves(folderName, visitedMoveVectors)
 
   for (let gameNum = 0; gameNum < numGames; gameNum++) {
-    let trainingData = _.first(await ai.train(neuralNetwork, gameNum + 1, numGames, printBoardVectors, config.useRandom, visitedMoveVectors))
+    console.log('evo oce li ucit', gameConfigValues.shouldTrainNetwork, 'random?', gameConfigValues.useRandom)
+    let trainingData = _.first(await ai.train(neuralNetwork, gameNum + 1, numGames, printBoardVectors, gameConfigValues.useRandom, gameConfigValues.shouldTrainNetwork, visitedMoveVectors))
     await writeTrainingDataToFiles(folderName, trainingData)
     let visitedMoveVectorsSize = _.size(visitedMoveVectors)
     console.log('Visited vector size:', visitedMoveVectorsSize, '/', consts.generic.VISITED_VECTOR_MAX_SIZE)
@@ -171,10 +177,18 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
       // await writeSimulatedGameMovesToFile(folderName, simulatedGameMoves)
     // }
 
-    if (config.shouldTrainNetwork && (trainingData.totalPoints >= config.learnedRewardNum || trainingData.numMoves >= config.maxMoveCount)) {
-      console.log('I THINK HE GOT IT!!!')
-      // process.exit(0)
+    if (gameConfigValues.shouldTrainNetwork) {
+      if (trainingData.totalPoints >= config.learnedRewardNum || trainingData.numMoves >= config.maxMoveCount) {
+        gameConfigValues.shouldTrainNetwork = false
+        gameConfigValues.useRandom = false
+        console.log('I THINK HE GOT IT!!!')
+        // process.exit(0)
+      } else {
+        gameConfigValues.shouldTrainNetwork = config.shouldTrainNetwork
+        gameConfigValues.useRandom = config.useRandom
+      }
     }
+
   }
   await writeNetworkToFile(folderName, neuralNetwork.net)
   await writePrevisitedMoves(folderName, visitedMoveVectors)

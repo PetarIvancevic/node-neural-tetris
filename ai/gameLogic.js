@@ -104,9 +104,11 @@ function getMoveValueWithBetterHeuristics (board, isGameOver) {
   if (isGameOver) {
     return 0
   }
+  const fullRowCount = getFullRowCount(board)
+
+  return fullRowCount * 1
 
   const holeCoefficient = getHoleCoefficient(board)
-  const fullRowCount = getFullRowCount(board)
   const heightCoefficient = getHeightCoefficient(board)
 
   let moveValue = (fullRowCount * 1) - holeCoefficient + heightCoefficient

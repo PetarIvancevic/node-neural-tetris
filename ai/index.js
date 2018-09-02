@@ -173,7 +173,7 @@ function create ({learningRate, hiddenLayers, activationFn, initialTrainingData,
   return netConfig
 }
 
-async function train (netConfig, currentGame, totalGames, shouldPrintBoardVector, useRandom, visitedMoveVectors) {
+async function train (netConfig, currentGame, totalGames, shouldPrintBoardVector, useRandom, shouldTrainNetwork, visitedMoveVectors) {
   if (!netConfig.net) {
     process.exit(1)
   }
@@ -192,14 +192,7 @@ async function train (netConfig, currentGame, totalGames, shouldPrintBoardVector
     numMoves: _.size(gameMoveNodes)
   })
 
-  const totalNumMoves = _.size(gameMoveNodes)
-  const totalRewardsForDivision = (tetrisGame.getScore() / 10) || 1
-  const agentHasPlayedPerfectGame = totalNumMoves < 500
-  const agentHasPlayedAboveAverageGame = parseInt(totalNumMoves / totalRewardsForDivision) >= appConfig.averageBlocksForFullRow
-
-  appConfig.shouldTrainNetwork = agentHasPlayedPerfectGame || agentHasPlayedAboveAverageGame
-
-  if (appConfig.shouldTrainNetwork) {
+  if (shouldTrainNetwork) {
     if (_.size(gameMoveNodes) > 1) {
       updateNetwork(gameMoveNodes, netConfig, shouldPrintBoardVector)
     } else {
