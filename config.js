@@ -4,8 +4,8 @@ const constants = require('./constants')
 const activationFn = 'leaky-relu'
 
 // neural network hidden layers
-// const hiddenLayers = [800, 100]
- const hiddenLayers = [700, 300]
+const hiddenLayers = [800, 100]
+ // const hiddenLayers = [700, 300]
 
 // neural network learning rate
 const learningRate = 0.1
@@ -13,13 +13,15 @@ const learningRate = 0.1
 const learnedRewardNum = 5000
 
 // this also means that the network won't learn
-const useRandom = false
+const useRandom = true
 
 const shouldTrainNetwork = true
 
-const fixedBlock = 'ZBlock'
+const fixedBlock = false
 
-const maxMoveCount = 100
+const maxMoveCount = 50
+
+const averageBlocksForFullRow = 5
 
 function constructNetworkInitialData (input, output) {
   const initialData = [{
@@ -40,6 +42,7 @@ function constructNetworkInitialData (input, output) {
 }
 
 module.exports = {
+  averageBlocksForFullRow,
   activationFn,
   useRandom,
   fixedBlock,

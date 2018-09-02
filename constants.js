@@ -21,9 +21,9 @@ const tetris = {
 
 
 const ai = {
-  COLUMN_COUNT: 6,
-  ROW_COUNT: 6,
-  VECTOR_ROW_COUNT: 6,
+  COLUMN_COUNT: 10,
+  ROW_COUNT: 10,
+  VECTOR_ROW_COUNT: 10,
   MAX_GAME_MOVES: 500,
   NUM_GAMES_TO_PLAY: 1
 }

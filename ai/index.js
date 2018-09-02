@@ -192,7 +192,12 @@ async function train (netConfig, currentGame, totalGames, shouldPrintBoardVector
     numMoves: _.size(gameMoveNodes)
   })
 
-  appConfig.shouldTrainNetwork = _.size(gameMoveNodes) < 500
+  const totalNumMoves = _.size(gameMoveNodes)
+  const totalRewardsForDivision = (tetrisGame.getScore() / 10) || 1
+  const agentHasPlayedPerfectGame = totalNumMoves < 500
+  const agentHasPlayedAboveAverageGame = parseInt(totalNumMoves / totalRewardsForDivision) >= appConfig.averageBlocksForFullRow
+
+  appConfig.shouldTrainNetwork = agentHasPlayedPerfectGame || agentHasPlayedAboveAverageGame
 
   if (appConfig.shouldTrainNetwork) {
     if (_.size(gameMoveNodes) > 1) {

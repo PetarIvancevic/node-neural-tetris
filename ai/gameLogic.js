@@ -102,14 +102,16 @@ function getHeightCoefficient (board) {
 
 function getMoveValueWithBetterHeuristics (board, isGameOver) {
   if (isGameOver) {
-    return -10
+    return 0
   }
 
   const holeCoefficient = getHoleCoefficient(board)
   const fullRowCount = getFullRowCount(board)
   const heightCoefficient = getHeightCoefficient(board)
 
-  return (fullRowCount * 1) - holeCoefficient + heightCoefficient
+  let moveValue = (fullRowCount * 1) - holeCoefficient + heightCoefficient
+
+  return moveValue > 0 ? moveValue : 0
 }
 
 /*
