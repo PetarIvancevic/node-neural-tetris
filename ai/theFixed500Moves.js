@@ -500,7 +500,7 @@ let fixed500Moves = [
   'ZBlock',
   'OBlock',
   'LBlock',
-  'LBlock'
+  'LBlock',
 ]
 
 if (config.fixedBlock) {
@@ -511,6 +511,5 @@ if (config.fixedBlock) {
   }
   console.log('GAMES ARE FIXED TO BLOCK', config.fixedBlock)
 }
-
 
 module.exports = fixed500Moves

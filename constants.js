@@ -6,7 +6,7 @@ const tetris = {
     OBlock: 'OBlock',
     SBlock: 'SBlock',
     TBlock: 'TBlock',
-    ZBlock: 'ZBlock'
+    ZBlock: 'ZBlock',
   },
   blockTypeColors: {
     IBlock: '#C7E437',
@@ -15,27 +15,26 @@ const tetris = {
     OBlock: '#934FAD',
     SBlock: '#B03013',
     TBlock: '#EF7BB9',
-    ZBlock: '#FC6601'
-  }
+    ZBlock: '#FC6601',
+  },
 }
-
 
 const ai = {
   COLUMN_COUNT: 6,
   ROW_COUNT: 6,
   VECTOR_ROW_COUNT: 6,
   MAX_GAME_MOVES: 500,
-  NUM_GAMES_TO_PLAY: 1
+  NUM_GAMES_TO_PLAY: 1,
 }
 
 const generic = {
   EMPTY_CELL_VALUE: 0,
   FILLED_CELL_VALUE: 1,
-  VISITED_VECTOR_MAX_SIZE: Math.pow(2, 12)
+  VISITED_VECTOR_MAX_SIZE: Math.pow(2, 12),
 }
 
 module.exports = {
   ai,
   generic,
-  tetris
+  tetris,
 }

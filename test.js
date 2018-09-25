@@ -10,7 +10,6 @@ for (let i = 0; i < maxIterations; i++) {
 
 finalArr.push(_(arr).shuffle().take(3).value())
 
-
 finalArr = _.flatten(finalArr)
 // finalArr = _(finalArr).flatten().shuffle().value()
 

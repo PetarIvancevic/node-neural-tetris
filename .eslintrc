@@ -1,0 +1,33 @@
+{
+  "extends": [
+    "standard"
+  ],
+  "rules": {
+    "comma-dangle": ["error", "always-multiline"],
+    "comma-spacing": ["error", {
+      "after": true,
+      "before": false
+    }],
+    "eqeqeq": "error",
+    "indent": ["error", 2, {
+      "MemberExpression": 0
+    }],
+    "new-cap": "error",
+    "no-const-assign": "error",
+    "no-duplicate-imports": "error",
+    "no-else-return": "error",
+    "no-lonely-if": "error",
+    "no-return-await": "error",
+    "no-shadow": "error",
+    "no-undefined": "error",
+    "no-use-before-define": "error",
+    "object-curly-spacing": ["error", "never"],
+    "prefer-const": "error",
+    "prefer-template": "error",
+    "sort-vars": "warn"
+  },
+  "globals": {
+    "it": true,
+    "describe": true
+  }
+}

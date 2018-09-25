@@ -1,39 +1,9 @@
 const _ = require('lodash')
 const brain = require('brain.js')
 
-const appConfig = require('../config')
 const constants = require('../constants')
 const simulator = require('./simulator')
 const TetrisGame = require('../game')
-
-const aiTrackers = {
-  CURRENT_GAME: 0,
-  TOTAL_SET_NUM_GAMES: 0
-}
-
-// async function writeMovesToFile (moves) {
-//   const gameData = stripAllMovesData(moves[0])
-
-//   await fetch('/api/write', { // eslint-disable-line
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json'
-//     },
-//     body: JSON.stringify(gameData)
-//   })
-// }
-
-// function stripMovesDataForNetworkUpdate (moves) {
-//   return _.map(moves, function (moveData) {
-//     return _.pick(moveData, ['boardVector', 'reward', 'output', 'numMoves'])
-//   })
-// }
-
-// REWARD should be between 0 - 0.4
-// because the net output is limited to 0.6  OLD
-// function normalizeReward (reward) {
-//   return reward ? reward / 100 : 0
-// }
 
 function printBoardVector (boardVector) {
   let row = []
@@ -50,7 +20,7 @@ function printBoardVector (boardVector) {
 }
 
 function getVectorWithValues (fillVal = 0) {
-  let arr = []
+  const arr = []
 
   for (let i = 0; i < constants.ai.VECTOR_ROW_COUNT * constants.ai.COLUMN_COUNT; i++) {
     arr.push(fillVal)
@@ -74,7 +44,7 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
   const moves = gameAllMoves
   const numMoves = _.size(moves)
 
-  let oldRes = netConfig.net.run(getVectorWithValues())[0]
+  const oldRes = netConfig.net.run(getVectorWithValues())[0]
   const trainingSets = []
   let finalReward = 0
 
@@ -90,33 +60,33 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
     //   printBoardVector(moves[i].boardVector)
     // }
 
-    let currentNetStateNormalized = netConfig.netNormalizedOutput(moves[i].boardVector)[0]
-    let reward = moves[i].reward
-    let nextNetStateNormalized = netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0]
+    // const currentNetStateNormalized = netConfig.netNormalizedOutput(moves[i].boardVector)[0]
+    const reward = moves[i].reward
+    const nextNetStateNormalized = netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0]
 
     // let netOutput = currentNetStateNormalized + netConfig.learningRate * (reward + discountFactor * (nextNetStateNormalized) - currentNetStateNormalized)
-    let netOutput = 0.1 + normalizeReluOutput(reward + discountFactor * nextNetStateNormalized)
+    const netOutput = 0.1 + normalizeReluOutput(reward + discountFactor * nextNetStateNormalized)
 
     trainingSets.push({
       boardVector: moves[i].boardVector,
-      netOutput: [netOutput]
+      netOutput: [netOutput],
     })
   }
 
   netConfig.net.train(_.map(trainingSets, function (trainingSet) {
     return {
       input: trainingSet.boardVector,
-      output: trainingSet.netOutput
+      output: trainingSet.netOutput,
     }
   }), {
-    iterations: 1
+    iterations: 1,
   })
 
   netConfig.net.train({
     input: _.last(gameAllMoves).boardVector,
-    output: [0]
+    output: [0],
   }, {
-    iterations: 1
+    iterations: 1,
   })
 
   printGame(gameAllMoves)
@@ -150,7 +120,7 @@ function create ({learningRate, hiddenLayers, activationFn, initialTrainingData,
       // return this.net.run(input)
       const netResult = this.net.run(input)
       return netResult[0] > 10 ? [10] : netResult[0] < 0 ? [0] : netResult
-    }
+    },
   }
 
   if (oldNetworkWeights) {
@@ -162,8 +132,8 @@ function create ({learningRate, hiddenLayers, activationFn, initialTrainingData,
       net: new brain.NeuralNetwork({
         learningRate: _.toNumber(learningRate),
         activation: activationFn,
-        hiddenLayers
-      })
+        hiddenLayers,
+      }),
     })
 
     // initial train
@@ -180,16 +150,16 @@ async function train (netConfig, currentGame, totalGames, shouldPrintBoardVector
   const chartData = []
 
   console.log(`Playing... GAME: ${currentGame} / ${totalGames}`)
-  let tetrisGame = new TetrisGame(3, true)
-  let gameMoveNodes = simulator.playOneEpisode(tetrisGame, netConfig, useRandom, visitedMoveVectors)
+  const tetrisGame = new TetrisGame(3, true)
+  const gameMoveNodes = simulator.playOneEpisode(tetrisGame, netConfig, useRandom, visitedMoveVectors)
 
   chartData.push({
     totalPoints: tetrisGame.getScore(),
     netValuesBefore: {
       empty: netConfig.net.run(getVectorWithValues())[0],
-      full: netConfig.net.run(getVectorWithValues(1))[0]
+      full: netConfig.net.run(getVectorWithValues(1))[0],
     },
-    numMoves: _.size(gameMoveNodes)
+    numMoves: _.size(gameMoveNodes),
   })
 
   if (shouldTrainNetwork) {
@@ -202,7 +172,7 @@ async function train (netConfig, currentGame, totalGames, shouldPrintBoardVector
 
   chartData[0].netValueAfter = {
     empty: netConfig.net.run(getVectorWithValues())[0],
-    full: netConfig.net.run(getVectorWithValues(1))[0]
+    full: netConfig.net.run(getVectorWithValues(1))[0],
   }
 
   return chartData
@@ -221,5 +191,5 @@ function simulateTrainingGame (netConfig) {
 module.exports = {
   create,
   simulateTrainingGame,
-  train
+  train,
 }

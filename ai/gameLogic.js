@@ -3,7 +3,7 @@ const _ = require('lodash')
 const constants = require('../constants')
 
 function pushFullRowsDown (board) {
-  let tempGameBoard = _.cloneDeep(board)
+  const tempGameBoard = _.cloneDeep(board)
 
   const BOARD_VECTOR_MAX_HEIGHT_INDEX = constants.ai.ROW_COUNT
 
@@ -71,34 +71,34 @@ function getMoveValue (fullRowCount, minimalRowIndex) {
   return fullRowCount * 1
 }
 
-function getHoleCoefficient (board) {
-  let numHoles = 0
+// function getHoleCoefficient (board) {
+//   let numHoles = 0
 
-  for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
-    let indexOfHole = _.findLastIndex(board[column], function (boardBlock) {return !boardBlock})
-    let indexOfHighestBlock = _.findIndex(board[column], function (boardBlock) {return boardBlock})
+//   for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
+//     const indexOfHole = _.findLastIndex(board[column], function (boardBlock) { return !boardBlock })
+//     const indexOfHighestBlock = _.findIndex(board[column], function (boardBlock) { return boardBlock })
 
-    if (indexOfHole > indexOfHighestBlock && indexOfHighestBlock !== -1) {
-      numHoles++
-    }
-  }
+//     if (indexOfHole > indexOfHighestBlock && indexOfHighestBlock !== -1) {
+//       numHoles++
+//     }
+//   }
 
-  return (numHoles / constants.ai.COLUMN_COUNT) / 1.7
-}
+//   return (numHoles / constants.ai.COLUMN_COUNT) / 1.7
+// }
 
-function getHeightCoefficient (board) {
-  let heightCoefficient = 0
+// function getHeightCoefficient (board) {
+//   let heightCoefficient = 0
 
-  for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
-    let indexOfHighestBlock = _.findIndex(board[column], function (boardBlock) {return boardBlock})
+//   for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
+//     const indexOfHighestBlock = _.findIndex(board[column], function (boardBlock) { return boardBlock })
 
-    if (indexOfHighestBlock !== -1) {
-      heightCoefficient += (indexOfHighestBlock / (constants.ai.COLUMN_COUNT * constants.ai.ROW_COUNT))
-    }
-  }
+//     if (indexOfHighestBlock !== -1) {
+//       heightCoefficient += (indexOfHighestBlock / (constants.ai.COLUMN_COUNT * constants.ai.ROW_COUNT))
+//     }
+//   }
 
-  return (heightCoefficient / constants.ai.COLUMN_COUNT)
-}
+//   return (heightCoefficient / constants.ai.COLUMN_COUNT)
+// }
 
 function getMoveValueWithBetterHeuristics (board, isGameOver) {
   if (isGameOver) {
@@ -108,12 +108,13 @@ function getMoveValueWithBetterHeuristics (board, isGameOver) {
 
   return fullRowCount * 1
 
-  const holeCoefficient = getHoleCoefficient(board)
-  const heightCoefficient = getHeightCoefficient(board)
+  // old ideas
+  // const holeCoefficient = getHoleCoefficient(board)
+  // const heightCoefficient = getHeightCoefficient(board)
 
-  let moveValue = (fullRowCount * 1) - holeCoefficient + heightCoefficient
+  // const moveValue = (fullRowCount * 1) - holeCoefficient + heightCoefficient
 
-  return moveValue > 0 ? moveValue : 0
+  // return moveValue > 0 ? moveValue : 0
 }
 
 /*
@@ -141,14 +142,14 @@ function populateLowestFourYCoordsFromOccupiedPositions (board) {
       constants.ai.ROW_COUNT - 4,
       constants.ai.ROW_COUNT - 3,
       constants.ai.ROW_COUNT - 2,
-      constants.ai.ROW_COUNT - 1
+      constants.ai.ROW_COUNT - 1,
     ]
   } else {
     occupiedRows = [
       firstRowIndex,
       firstRowIndex + 1,
       firstRowIndex + 2,
-      firstRowIndex + 3
+      firstRowIndex + 3,
     ]
   }
 
@@ -195,5 +196,5 @@ module.exports = {
   getMoveValueWithBetterHeuristics,
   populateBoardWithActualMove,
   populateLowestFourYCoordsFromOccupiedPositions,
-  pushFullRowsDown
+  pushFullRowsDown,
 }

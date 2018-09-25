@@ -10,7 +10,7 @@ const config = require('./config')
 const trainingDataFolder = 'training-data'
 
 const params = minimist(process.argv.slice(2), {
-  stopEarly: true
+  stopEarly: true,
 })
 
 function die () {
@@ -57,7 +57,7 @@ function validateParams () {
   params.v = {
     count: trainingCount,
     name: trainingFolderName,
-    continueTraining
+    continueTraining,
   }
 
   return true
@@ -104,17 +104,17 @@ async function writeNetworkToFile (folderName, trainedNetwork) {
   ).catch(logAndDie)
 }
 
-async function writeSimulatedGameMovesToFile (folderName, moves) {
-  console.log('Writing moves to file...')
-  const networkFileName = `${trainingDataFolder}/${folderName}/game-moves.txt`
+// async function writeSimulatedGameMovesToFile (folderName, moves) {
+//   console.log('Writing moves to file...')
+//   const networkFileName = `${trainingDataFolder}/${folderName}/game-moves.txt`
 
-  for (let i = 0; i < _.size(moves); i++) {
-    await fsPromise.appendFileAsync(
-      networkFileName,
-      `${JSON.stringify(moves[i])}\n`
-    ).catch(logAndDie)
-  }
-}
+//   for (let i = 0; i < _.size(moves); i++) {
+//     await fsPromise.appendFileAsync(
+//       networkFileName,
+//       `${JSON.stringify(moves[i])}\n`
+//     ).catch(logAndDie)
+//   }
+// }
 
 async function readNetworkFromFile (folderName) {
   const networkJSON = await fsPromise.readFileAsync(`${trainingDataFolder}/${folderName}/network.json`, 'utf8')
@@ -148,17 +148,15 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
   }
 
   let visitedMoveVectors = preVisitedMoveVectors || []
-  let currentVisitedSize = _.size(visitedMoveVectors)
-  let sameSizeCount = 0
 
   await writeNetworkToFile(folderName, neuralNetwork.net)
   await writePrevisitedMoves(folderName, visitedMoveVectors)
 
   for (let gameNum = 0; gameNum < numGames; gameNum++) {
     console.log('evo oce li ucit', gameConfigValues.shouldTrainNetwork, 'random?', gameConfigValues.useRandom)
-    let trainingData = _.first(await ai.train(neuralNetwork, gameNum + 1, numGames, printBoardVectors, gameConfigValues.useRandom, gameConfigValues.shouldTrainNetwork, visitedMoveVectors))
+    const trainingData = _.first(await ai.train(neuralNetwork, gameNum + 1, numGames, printBoardVectors, gameConfigValues.useRandom, gameConfigValues.shouldTrainNetwork, visitedMoveVectors))
     await writeTrainingDataToFiles(folderName, trainingData)
-    let visitedMoveVectorsSize = _.size(visitedMoveVectors)
+    const visitedMoveVectorsSize = _.size(visitedMoveVectors)
     console.log('Visited vector size:', visitedMoveVectorsSize, '/', consts.generic.VISITED_VECTOR_MAX_SIZE)
 
     if (visitedMoveVectorsSize > consts.generic.VISITED_VECTOR_MAX_SIZE) {
@@ -166,19 +164,15 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
       visitedMoveVectors = []
     }
 
-    if (currentVisitedSize === visitedMoveVectorsSize) {
-      sameSizeCount++
-    }
-
     // if (gameNum % 2 === 0) {
-      await writeNetworkToFile(folderName, neuralNetwork.net)
-      // await writePrevisitedMoves(folderName, visitedMoveVectors)
-      // let simulatedGameMoves = await ai.simulateTrainingGame(neuralNetwork)
-      // await writeSimulatedGameMovesToFile(folderName, simulatedGameMoves)
+    await writeNetworkToFile(folderName, neuralNetwork.net)
+    // await writePrevisitedMoves(folderName, visitedMoveVectors)
+    // let simulatedGameMoves = await ai.simulateTrainingGame(neuralNetwork)
+    // await writeSimulatedGameMovesToFile(folderName, simulatedGameMoves)
     // }
 
     if (gameConfigValues.shouldTrainNetwork) {
-      if (trainingData.totalPoints >= config.learnedRewardNum || trainingData.numMoves >= config.maxMoveCount) {
+      if (trainingData.totalPoints >= config.learnedRewardNum || trainingData.numMoves >= config.learnedMoveCount) {
         gameConfigValues.shouldTrainNetwork = false
         gameConfigValues.useRandom = false
         console.log('I THINK HE GOT IT!!!')
@@ -188,7 +182,6 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
         gameConfigValues.useRandom = config.useRandom
       }
     }
-
   }
   await writeNetworkToFile(folderName, neuralNetwork.net)
   await writePrevisitedMoves(folderName, visitedMoveVectors)

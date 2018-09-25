@@ -18,5 +18,5 @@ function isBoardVectorVisited (boardVector, visitedMovesVectors) {
 
 module.exports = {
   addUniqueMoveBoardVector,
-  isBoardVectorVisited
+  isBoardVectorVisited,
 }

@@ -1,34 +1,65 @@
 const constants = require('./constants')
 
 // neural network activation function
+/*
+  Available activation functions:
+    - leaky-relu
+    - relu
+    - sigmoid
+*/
 const activationFn = 'leaky-relu'
 
-// neural network hidden layers
-// const hiddenLayers = [800, 100]
- const hiddenLayers = [700, 300]
+/*
+  Neural network hidden layers
+  Every element of the array defines the number of neurons for that layer.
+*/
+const hiddenLayers = [800, 100]
 
 // neural network learning rate
 const learningRate = 0.1
 
 const learnedRewardNum = 5000
 
-const useRandom = false
+/*
+  Should the network use random moves
+  If set to false the network might not learn the best actions.
+  This parameter will be turned off when the network has been trained.
+*/
+const useRandom = true
 
+/*
+  Should the network be trained or not. Probably wise to leave it set to "true"
+*/
 const shouldTrainNetwork = true
 
-const fixedBlock = 'IBlock'
+/*
+  Which block should be used for the game
+  Available block values:
+    - LBlock
+    - JBlock
+    - IBlock
+    - OBlock
+    - SBlock
+    - ZBlock
+    - TBlock
+    - false  => this means to use all the fixed blocks
+*/
+const fixedBlock = 'JBlock'
 
-const maxMoveCount = 100
-
-const averageBlocksForFullRow = 5
+/*
+  This parameter defines the number of moves when the user thinks the bot has learned.
+  After the bot has made "learnedMoveCount" actions then the training will stop to see
+  if it has truly learned how to play.
+*/
+const learnedMoveCount = 100
 
 function constructNetworkInitialData (input, output) {
   const initialData = [{
     input: [],
-    output: [10]
+    output: [10],
   }, {
     input: [],
-    output: [0]
+    output: [0],
   }]
   const vectorSize = constants.ai.COLUMN_COUNT * constants.ai.VECTOR_ROW_COUNT
 
@@ -41,14 +72,13 @@ function constructNetworkInitialData (input, output) {
 }
 
 module.exports = {
-  averageBlocksForFullRow,
   activationFn,
   useRandom,
   fixedBlock,
-  maxMoveCount,
+  learnedMoveCount,
   shouldTrainNetwork,
   learnedRewardNum,
   initialTrainingData: constructNetworkInitialData(),
   hiddenLayers,
-  learningRate
+  learningRate,
 }

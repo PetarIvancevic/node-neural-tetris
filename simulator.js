@@ -33,10 +33,10 @@ function generateMoves (currentBlock, checkCollisionFn) {
 }
 
 function stripDuplicateMoves (newBlockMoves, allBlockMoveNodes) {
-  let uniqueBlockMoves = []
+  const uniqueBlockMoves = []
 
   _.each(newBlockMoves, function (newBlockMove) {
-    let duplicateBlock = _.find(allBlockMoveNodes, function (blockMoveNode) {
+    const duplicateBlock = _.find(allBlockMoveNodes, function (blockMoveNode) {
       return _.isEqual(blockMoveNode.block.occupiedPositions, newBlockMove.occupiedPositions)
     })
 
@@ -66,12 +66,12 @@ function generateAllMoveNodes (tetrisGame) {
   let blockPositions = [_.cloneDeep(tetrisGame.getCurrentBlock())]
 
   while (_.size(blockPositions)) {
-    let parentMove = blockPositions.pop()
-    let newMoves = generateMoves(parentMove, tetrisGame.getCheckCollisionFn())
-    let newUniqueMoves = stripDuplicateMoves(newMoves, allMoveNodes)
+    const parentMove = blockPositions.pop()
+    const newMoves = generateMoves(parentMove, tetrisGame.getCheckCollisionFn())
+    const newUniqueMoves = stripDuplicateMoves(newMoves, allMoveNodes)
 
-    let uniqueMoveNodes = _.map(newUniqueMoves, function (uniqueMove) {
-      let newChild = new TreeNode(null, uniqueMove)
+    const uniqueMoveNodes = _.map(newUniqueMoves, function (uniqueMove) {
+      const newChild = new TreeNode(null, uniqueMove)
       return newChild
     })
 
@@ -99,15 +99,15 @@ function getBestMoveNode (tetrisGame, netConfig) {
   // WATCH OUT FOR BOARD VECTOR GENERATION!
 
   _.each(finalMoves, function (moveNode, index) {
-    let board = tetrisGame.getBoard()
+    const board = tetrisGame.getBoard()
 
-    let occupiedRows = gameLogic.populateLowestFourYCoordsFromOccupiedPositions(board)
+    const occupiedRows = gameLogic.populateLowestFourYCoordsFromOccupiedPositions(board)
     // BOARD CHANGED BY REFERENCE
     gameLogic.populateBoardWithActualMove(board, moveNode.block.occupiedPositions, constants.generic.FILLED_CELL_VALUE)
 
-    let fullRowCount = gameLogic.getFullRowCount(board, occupiedRows)
+    const fullRowCount = gameLogic.getFullRowCount(board, occupiedRows)
     // reward is just calculating full rows or game lost
-    let reward = gameLogic.getMoveValue(fullRowCount, _.min(occupiedRows))
+    const reward = gameLogic.getMoveValue(fullRowCount, _.min(occupiedRows))
 
     moveNode.setReward(reward)
     moveNode.setBoardVector(board, occupiedRows)
@@ -115,7 +115,7 @@ function getBestMoveNode (tetrisGame, netConfig) {
 
     gameLogic.populateBoardWithActualMove(board, moveNode.block.occupiedPositions)
 
-    let moveValue = reward + netConfig.net.run(moveNode.boardVector)[0]
+    const moveValue = reward + netConfig.net.run(moveNode.boardVector)[0]
     // let moveValue = netConfig.net.run(moveNode.boardVector)[0]
 
     if (moveValue === bestMoves.moveValue) {
@@ -125,7 +125,7 @@ function getBestMoveNode (tetrisGame, netConfig) {
     if (moveValue > bestMoves.moveValue) {
       bestMoves = {
         moveValue,
-        sameValueMoveIndexes: [index]
+        sameValueMoveIndexes: [index],
       }
     }
   })
@@ -144,7 +144,7 @@ function playOneEpisode (tetrisGame, netConfig) {
   let gameMoves = 0
 
   while (!tetrisGame.isGameOver()) {
-    let bestMoveNode = getBestMoveNode(tetrisGame, netConfig)
+    const bestMoveNode = getBestMoveNode(tetrisGame, netConfig)
 
     if (!bestMoveNode || gameMoves > constants.ai.MAX_GAME_MOVES) {
       break
@@ -159,5 +159,5 @@ function playOneEpisode (tetrisGame, netConfig) {
 }
 
 export default {
-  playOneEpisode
+  playOneEpisode,
 }

@@ -5,7 +5,7 @@ const gameLogic = require('./gameLogic')
 
 function getBoardVector (board) {
   const boardVector = []
-  const occupiedRows = gameLogic.populateLowestFourYCoordsFromOccupiedPositions(board)
+  // const occupiedRows = gameLogic.populateLowestFourYCoordsFromOccupiedPositions(board)
 
   for (let row = 0; row < constants.ai.VECTOR_ROW_COUNT; row++) {
     for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
