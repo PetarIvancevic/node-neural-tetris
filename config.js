@@ -13,10 +13,10 @@ const activationFn = 'leaky-relu'
   Neural network hidden layers
   Every element of the array defines the number of neurons for that layer.
 */
-const hiddenLayers = [800, 100]
+const hiddenLayers = [50, 20]
 
 // neural network learning rate
-const learningRate = 0.1
+const learningRate = 0.02
 
 const learnedRewardNum = 5000
 
@@ -44,7 +44,7 @@ const shouldTrainNetwork = true
     - TBlock
     - false  => this means to use all the fixed blocks
 */
-const fixedBlock = 'JBlock'
+const fixedBlock = false
 
 /*
   This parameter defines the number of moves when the user thinks the bot has learned.

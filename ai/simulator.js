@@ -20,6 +20,15 @@ function makeMove (currentBlock, move, checkCollisionFn) {
   return currentBlock
 }
 
+function checkIfTuckMoveValid(tuckBlock, checkCollisionFn) {
+  for (let i = 0; i < tuckBlock.occupiedPositions.length; i++) {
+    if (!checkCollisionFn(tuckBlock.occupiedPositions[i].x, tuckBlock.occupiedPositions[i].y)) {
+      return false
+    }
+  }
+  return true
+}
+
 function generateMoves (currentBlock, checkCollisionFn) {
   if (!currentBlock.isMovable) {
     return []
@@ -32,6 +41,38 @@ function generateMoves (currentBlock, checkCollisionFn) {
     possibleMoves.push(makeMove(_.cloneDeep(currentBlock), possibleMovements[i]))
   }
   possibleMoves.push(makeMove(_.cloneDeep(currentBlock), 'down', checkCollisionFn))
+
+  if (currentBlock.isMovable) {
+    const tuckInSide = ['left', 'right']
+
+    for (let i = 0; i < tuckInSide.length; i++) {
+      let tuckBlock = _.cloneDeep(currentBlock)
+      const tuckInSideName = tuckInSide[i]
+      tuckBlock.move(tuckInSideName)
+
+      if (!checkIfTuckMoveValid(tuckBlock, checkCollisionFn)) {
+        continue
+      }
+      let lastValidTuckBlock = tuckBlock
+
+      // vrtimo dok ne dodjemo skroz livo ili skroz desno
+      while(true) {
+        tuckBlock = _.cloneDeep(lastValidTuckBlock)
+        tuckBlock.move(tuckInSideName)
+
+        if (checkIfTuckMoveValid(tuckBlock, checkCollisionFn)) {
+          lastValidTuckBlock = tuckBlock
+        } else {
+          break
+        }
+      }
+
+      possibleMovements.push(lastValidTuckBlock)
+    }
+  }
+
+
+
 
   return possibleMoves
 }
@@ -74,6 +115,8 @@ function generateAllMoveNodes (tetrisGame) {
     const parentMove = blockPositions.pop()
     const newMoves = generateMoves(parentMove, tetrisGame.getCheckCollisionFn())
     const newUniqueMoves = stripDuplicateMoves(newMoves, allMoveNodes)
+
+    // console.log('evo poteza u all move nodes ', newUniqueMoves)
 
     const uniqueMoveNodes = []
     for (let uniqueMoveIndex = 0; uniqueMoveIndex < _.size(newUniqueMoves); uniqueMoveIndex++) {

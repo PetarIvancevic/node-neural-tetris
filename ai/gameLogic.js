@@ -102,9 +102,14 @@ function getMoveValue (fullRowCount, minimalRowIndex) {
 
 function getMoveValueWithBetterHeuristics (board, isGameOver) {
   if (isGameOver) {
-    return 0
+    return -1
   }
+
   const fullRowCount = getFullRowCount(board)
+  return calculateTetrisHeuristic(board, isGameOver, fullRowCount)
+
+  // dodaj ode da je bolje gurat blokove dolje
+
 
   return fullRowCount * 1
 
@@ -115,6 +120,52 @@ function getMoveValueWithBetterHeuristics (board, isGameOver) {
   // const moveValue = (fullRowCount * 1) - holeCoefficient + heightCoefficient
 
   // return moveValue > 0 ? moveValue : 0
+}
+
+function calculateTetrisHeuristic(board, done, linesCleared) {
+  const rows = board.length;
+  const cols = board[0].length;
+
+  let heights = new Array(cols).fill(0);
+  let holes = 0;
+
+  // Izračun visine i rupa
+  for (let col = 0; col < cols; col++) {
+    let blockFound = false;
+    for (let row = 0; row < rows; row++) {
+      if (board[row][col] === 1) {
+        if (!blockFound) {
+          heights[col] = rows - row;
+          blockFound = true;
+        }
+      } else if (blockFound) {
+        holes++;
+      }
+    }
+  }
+
+  const aggregateHeight = heights.reduce((a, b) => a + b, 0);
+  const bumpiness = heights
+    .slice(0, -1)
+    .reduce((acc, h, i) => acc + Math.abs(h - heights[i + 1]), 0);
+
+  // Heuristički koeficijenti — možeš ih fino podesiti prema potrebi
+  const a = 1.0;   // lines cleared
+  const b = 0.510; // aggregate height
+  const c = 0.760; // holes
+  const d = 0.356; // bumpiness
+  const e = 5.0;   // penalty ako je gotovo
+
+  let score = a * linesCleared
+              - b * aggregateHeight
+              - c * holes
+              - d * bumpiness;
+
+  if (done) {
+    score -= e;
+  }
+
+  return score;
 }
 
 /*

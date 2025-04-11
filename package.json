@@ -16,7 +16,7 @@
   "license": "MIT",
   "dependencies": {
     "bluebird": "^3.5.1",
-    "brain.js": "^1.2.1",
+    "brain.js": "^1.6.1",
     "dotenv-safe": "^5.0.1",
     "minimist": "^1.2.0"
   },

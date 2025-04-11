@@ -153,7 +153,6 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
   await writePrevisitedMoves(folderName, visitedMoveVectors)
 
   for (let gameNum = 0; gameNum < numGames; gameNum++) {
-    console.log('evo oce li ucit', gameConfigValues.shouldTrainNetwork, 'random?', gameConfigValues.useRandom)
     const trainingData = _.first(await ai.train(neuralNetwork, gameNum + 1, numGames, printBoardVectors, gameConfigValues.useRandom, gameConfigValues.shouldTrainNetwork, visitedMoveVectors))
     await writeTrainingDataToFiles(folderName, trainingData)
     const visitedMoveVectorsSize = _.size(visitedMoveVectors)
