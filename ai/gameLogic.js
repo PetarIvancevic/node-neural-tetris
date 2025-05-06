@@ -86,32 +86,29 @@ function getMoveValue (fullRowCount, minimalRowIndex) {
 //   return (numHoles / constants.ai.COLUMN_COUNT) / 1.7
 // }
 
-// function getHeightCoefficient (board) {
-//   let heightCoefficient = 0
+function getHeightCoefficient(board) {
+  let totalHeight = 0
+  const maxHeight = constants.ai.ROW_COUNT
+  const columnCount = constants.ai.COLUMN_COUNT
 
-//   for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
-//     const indexOfHighestBlock = _.findIndex(board[column], function (boardBlock) { return boardBlock })
-
-//     if (indexOfHighestBlock !== -1) {
-//       heightCoefficient += (indexOfHighestBlock / (constants.ai.COLUMN_COUNT * constants.ai.ROW_COUNT))
-//     }
-//   }
-
-//   return (heightCoefficient / constants.ai.COLUMN_COUNT)
-// }
+  for (let column = 0; column < columnCount; column++) {
+    const hasBlock = _.some(board[column], cell => cell)
+    if (hasBlock) {
+      totalHeight = (maxHeight - column)
+      break
+    }
+  }
+  const normalizedHeight = Number((totalHeight / (columnCount * maxHeight)).toFixed(5))
+  return normalizedHeight
+}
 
 function getMoveValueWithBetterHeuristics (board, isGameOver) {
   if (isGameOver) {
-    return -1
+    return 0
   }
-
   const fullRowCount = getFullRowCount(board)
-  return calculateTetrisHeuristic(board, isGameOver, fullRowCount)
 
-  // dodaj ode da je bolje gurat blokove dolje
-
-
-  return fullRowCount * 1
+  return (fullRowCount * 1) % 2 - getHeightCoefficient(board)
 
   // old ideas
   // const holeCoefficient = getHoleCoefficient(board)
@@ -120,52 +117,6 @@ function getMoveValueWithBetterHeuristics (board, isGameOver) {
   // const moveValue = (fullRowCount * 1) - holeCoefficient + heightCoefficient
 
   // return moveValue > 0 ? moveValue : 0
-}
-
-function calculateTetrisHeuristic(board, done, linesCleared) {
-  const rows = board.length;
-  const cols = board[0].length;
-
-  let heights = new Array(cols).fill(0);
-  let holes = 0;
-
-  // Izračun visine i rupa
-  for (let col = 0; col < cols; col++) {
-    let blockFound = false;
-    for (let row = 0; row < rows; row++) {
-      if (board[row][col] === 1) {
-        if (!blockFound) {
-          heights[col] = rows - row;
-          blockFound = true;
-        }
-      } else if (blockFound) {
-        holes++;
-      }
-    }
-  }
-
-  const aggregateHeight = heights.reduce((a, b) => a + b, 0);
-  const bumpiness = heights
-    .slice(0, -1)
-    .reduce((acc, h, i) => acc + Math.abs(h - heights[i + 1]), 0);
-
-  // Heuristički koeficijenti — možeš ih fino podesiti prema potrebi
-  const a = 1.0;   // lines cleared
-  const b = 0.510; // aggregate height
-  const c = 0.760; // holes
-  const d = 0.356; // bumpiness
-  const e = 5.0;   // penalty ako je gotovo
-
-  let score = a * linesCleared
-              - b * aggregateHeight
-              - c * holes
-              - d * bumpiness;
-
-  if (done) {
-    score -= e;
-  }
-
-  return score;
 }
 
 /*

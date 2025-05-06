@@ -13,10 +13,10 @@ const activationFn = 'leaky-relu'
   Neural network hidden layers
   Every element of the array defines the number of neurons for that layer.
 */
-const hiddenLayers = [50, 20]
+const hiddenLayers = [800, 100]
 
 // neural network learning rate
-const learningRate = 0.02
+const learningRate = 0.01
 
 const learnedRewardNum = 5000
 
@@ -44,14 +44,19 @@ const shouldTrainNetwork = true
     - TBlock
     - false  => this means to use all the fixed blocks
 */
-const fixedBlock = false
+const fixedBlock = false //'IBlock'
+
+/**
+ * Hocemo li isprintat cijelu plocu igre
+ */
+const shouldPrintGame = false
 
 /*
   This parameter defines the number of moves when the user thinks the bot has learned.
   After the bot has made "learnedMoveCount" actions then the training will stop to see
   if it has truly learned how to play.
 */
-const learnedMoveCount = 100
+const learnedMoveCount = 300
 
 function constructNetworkInitialData (input, output) {
   const initialData = [{
@@ -81,4 +86,5 @@ module.exports = {
   initialTrainingData: constructNetworkInitialData(),
   hiddenLayers,
   learningRate,
+  shouldPrintGame,
 }

@@ -4,6 +4,7 @@ const brain = require('brain.js')
 const constants = require('../constants')
 const simulator = require('./simulator')
 const TetrisGame = require('../game')
+const config = require('../config')
 
 function printBoardVector (boardVector) {
   let row = []
@@ -65,7 +66,7 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
     const nextNetStateNormalized = netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0]
 
     // let netOutput = currentNetStateNormalized + netConfig.learningRate * (reward + discountFactor * (nextNetStateNormalized) - currentNetStateNormalized)
-    const netOutput = 0.1 + normalizeReluOutput(reward + discountFactor * nextNetStateNormalized)
+    const netOutput = Number((0.1 + normalizeReluOutput(reward + discountFactor * nextNetStateNormalized)).toFixed(5))
 
     trainingSets.push({
       boardVector: moves[i].boardVector,
@@ -80,6 +81,7 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
     }
   }), {
     iterations: 1,
+    learningRate: config.learningRate
   })
 
   netConfig.net.train({
@@ -87,9 +89,12 @@ function updateNetwork (gameAllMoves, netConfig, shouldPrintBoardVector = false)
     output: [0],
   }, {
     iterations: 1,
+    learningRate: config.learningRate
   })
 
-  printGame(gameAllMoves)
+  if (config.shouldPrintGame) {
+    printGame(gameAllMoves)
+  }
 
   console.log(`
     OLD: ${oldRes}
@@ -137,7 +142,7 @@ function create ({learningRate, hiddenLayers, activationFn, initialTrainingData,
     })
 
     // initial train
-    netConfig.net.train(initialTrainingData, {iterations: 1})
+    netConfig.net.train(initialTrainingData, {iterations: 1, learningRate: config.learningRate})
   }
 
   return netConfig
@@ -170,6 +175,13 @@ async function train (netConfig, currentGame, totalGames, shouldPrintBoardVector
     }
   }
 
+  // if (_.size(gameMoveNodes) >= config.learnedMoveCount) {
+  //   for(let i = 0; i < 50; i++) {
+  //     console.info('Learning on the "learned" network 1000 times')
+  //     updateNetwork(gameMoveNodes, netConfig, shouldPrintBoardVector)
+  //   }
+  // }
+
   chartData[0].netValueAfter = {
     empty: netConfig.net.run(getVectorWithValues())[0],
     full: netConfig.net.run(getVectorWithValues(1))[0],
@@ -182,7 +194,13 @@ function simulateTrainingGame (netConfig) {
   const allGameNodeMoves = []
 
   for (let i = 0; i < constants.ai.NUM_GAMES_TO_PLAY; i++) {
-    allGameNodeMoves.push(simulator.playOneEpisode(new TetrisGame(3, true), netConfig, false))
+    const tetrisGame = new TetrisGame(3, true)
+    const simulatedGame = simulator.playOneEpisode(tetrisGame, netConfig, false)
+    printGame(simulatedGame)
+    console.log(`
+      TOTAL MOVES: ${tetrisGame.getMoveCount()}  
+      REWARD: ${tetrisGame.getScore()}  
+    `)
   }
 
   return allGameNodeMoves

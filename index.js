@@ -153,6 +153,7 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
   await writePrevisitedMoves(folderName, visitedMoveVectors)
 
   for (let gameNum = 0; gameNum < numGames; gameNum++) {
+    console.log('evo oce li ucit', gameConfigValues.shouldTrainNetwork, 'random?', gameConfigValues.useRandom)
     const trainingData = _.first(await ai.train(neuralNetwork, gameNum + 1, numGames, printBoardVectors, gameConfigValues.useRandom, gameConfigValues.shouldTrainNetwork, visitedMoveVectors))
     await writeTrainingDataToFiles(folderName, trainingData)
     const visitedMoveVectorsSize = _.size(visitedMoveVectors)
@@ -172,14 +173,19 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
 
     if (gameConfigValues.shouldTrainNetwork) {
       if (trainingData.totalPoints >= config.learnedRewardNum || trainingData.numMoves >= config.learnedMoveCount) {
-        gameConfigValues.shouldTrainNetwork = false
-        gameConfigValues.useRandom = false
+        // gameConfigValues.shouldTrainNetwork = false
+        config.useRandom = false
         console.log('I THINK HE GOT IT!!!')
         // process.exit(0)
       } else {
         gameConfigValues.shouldTrainNetwork = config.shouldTrainNetwork
         gameConfigValues.useRandom = config.useRandom
       }
+    }
+
+    if (trainingData.numMoves === 500) {
+      console.log('Agent has played a perfect game! Closing the training.')
+      break
     }
   }
   await writeNetworkToFile(folderName, neuralNetwork.net)
@@ -192,8 +198,13 @@ async function trainNetwork (folderName, numGames, preVisitedMoveVectors) {
 async function init ({continueTraining, name, count}) {
   await setup(continueTraining, name)
   const preVisitedMoveVectors = continueTraining ? await getPrevisitedVectorMoves(name) : []
-  await trainNetwork(name, count, preVisitedMoveVectors)
-  // const allGames = await ai.simulateTrainingGame(neuralNetwork)
+  if (config.shouldTrainNetwork) {
+    await trainNetwork(name, count, preVisitedMoveVectors)
+  } else {
+    for (let i = 0; i < count; i++) {
+      ai.simulateTrainingGame(neuralNetwork)
+    }
+  }
 }
 
 if (!validateParams()) {
